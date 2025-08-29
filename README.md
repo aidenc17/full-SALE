@@ -11,24 +11,7 @@ Academic planning system to help students select majors/minors and plan their co
 * Code editor (VS Code recommended)
 * Modern web browser (Chrome, Firefox, Safari, Edge)
 
-## Scripts
 
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm start
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
-
-# Clear cache and restart (if needed)
-rm -rf node_modules package-lock.json && npm install && npm start
-```
 
 ## Getting Started
 
@@ -53,6 +36,25 @@ rm -rf node_modules package-lock.json && npm install && npm start
    ```bash
    git checkout -b feature/your-feature-name
    ```
+   
+## Scripts
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Clear cache and restart (if needed)
+rm -rf node_modules package-lock.json && npm install && npm start
+```
 
 ## Team Workflow
 
