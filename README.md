@@ -93,7 +93,6 @@ src/
 * [Create React App](https://create-react-app.dev/) - Build tooling
 * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) - Styling
 * [JavaScript ES6+](https://developer.mozilla.org/en-US/docs/Web/JavaScript) - Programming language
-* [Vercel](https://vercel.com/) - Deployment platform (planned)
 
 📚 **Documentation**
 * [React Documentation](https://react.dev/learn)
