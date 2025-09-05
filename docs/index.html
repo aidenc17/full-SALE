@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intro to Software Engineering - Full SALE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        main {
+            padding: 3rem 0;
+        }
+
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h3 {
+            color: #555;
+            font-size: 1.3rem;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin: 1rem 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .team-member {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            background: #667eea;
+            border-radius: 50%;
+            margin: 0 auto 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 1rem;
+        }
+
+        .coming-soon {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        /* Footer */
+        footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Full Sale</h1>
+            <p>Intro to Software Engineering Website</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#overview">Project Overview</a></li>
+                <li><a href="#team">Team Members</a></li>
+                <li><a href="#reports">Weekly Reports</a></li>
+                <li><a href="#requirements">Requirements</a></li>
+                <li><a href="#testing">Test Plan</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Project Overview Section -->
+            <section id="overview" class="section">
+                <h2>📋 Project Overview</h2>
+                <div class="placeholder">
+                    <p><strong>Project description and objectives will be added here.</strong></p>
+                    <p>This section will contain a comprehensive overview of the project, including goals, scope, and key deliverables.</p>
+                </div>
+            </section>
+
+            <!-- Team Members Section -->
+            <section id="team" class="section">
+                <h2>👥 Team Members</h2>
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-avatar">TM</div>
+                        <h3>Aiden Cox]</h3>
+                        <p>Role: [Position]</p>
+                        <p>Email: [cox.378@wright.edu]</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">TM</div>
+                        <h3>[Team Member 2]</h3>
+                        <p>Role: [Position]</p>
+                        <p>Email: [email@example.com]</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">TM</div>
+                        <h3>[Team Member 3]</h3>
+                        <p>Role: [Position]</p>
+                        <p>Email: [email@example.com]</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-avatar">TM</div>
+                        <h3>[Team Member 4]</h3>
+                        <p>Role: [Position]</p>
+                        <p>Email: [email@example.com]</p>
+                    </div>
+                </div>
+                <div class="placeholder" style="margin-top: 2rem;">
+                    <p>Detailed team member information and responsibilities will be added by finals week.</p>
+                </div>
+            </section>
+
+            <!-- Weekly Reports Section -->
+            <section id="reports" class="section">
+                <h2>📊 Weekly Team Reports <span class="status-badge coming-soon">Coming Soon</span></h2>
+                
+                <h3>Week 1</h3>
+                <div class="placeholder">
+                    <p>Week 1 report will be added here - project kickoff and initial planning</p>
+                </div>
+
+                <h3>Week 2</h3>
+                <div class="placeholder">
+                    <p>Week 2 report will be added here - requirements gathering and analysis</p>
+                </div>
+
+                <h3>Week 3</h3>
+                <div class="placeholder">
+                    <p>Week 3 report will be added here - design and architecture planning</p>
+                </div>
+
+                <h3>Week 4</h3>
+                <div class="placeholder">
+                    <p>Week 4 report will be added here - development progress and milestones</p>
+                </div>
+
+                <div class="placeholder" style="margin-top: 2rem;">
+                    <p><strong>Additional weekly reports will be added as the project progresses.</strong></p>
+                    <p>Each report will include team activities, progress updates, challenges faced, and next steps.</p>
+                </div>
+            </section>
+
+            <!-- Software Requirements Section -->
+            <section id="requirements" class="section">
+                <h2>📋 Software Requirements Specification <span class="status-badge coming-soon">Coming Soon</span></h2>
+                <div class="placeholder">
+                    <p><strong>Complete Software Requirements Specification (SRS) document will be available here.</strong></p>
+                    <p>This will include:</p>
+                    <ul style="text-align: left; margin-top: 1rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        <li>Functional Requirements</li>
+                        <li>Non-functional Requirements</li>
+                        <li>System Architecture</li>
+                        <li>User Stories and Use Cases</li>
+                        <li>Technical Specifications</li>
+                        <li>Constraints and Assumptions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Software Test Plan Section -->
+            <section id="testing" class="section">
+                <h2>🧪 Software Test Plan <span class="status-badge coming-soon">Coming Soon</span></h2>
+                <div class="placeholder">
+                    <p><strong>Comprehensive Software Test Plan will be documented here.</strong></p>
+                    <p>This will include:</p>
+                    <ul style="text-align: left; margin-top: 1rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        <li>Test Strategy and Approach</li>
+                        <li>Test Cases and Scenarios</li>
+                        <li>Unit Testing Plans</li>
+                        <li>Integration Testing</li>
+                        <li>System Testing Procedures</li>
+                        <li>User Acceptance Testing</li>
+                        <li>Performance and Security Testing</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 [Team Name] - [Course Name] | [University/Institution]</p>
+            <p>Content will be updated throughout the semester with final completion by finals week.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add active navigation highlighting
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('nav a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.background = '';
+                link.style.color = '';
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.style.background = '#667eea';
+                    link.style.color = 'white';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
