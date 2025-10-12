@@ -31,7 +31,7 @@ export default function DashboardTiles() {
         </ul>
         <Link
           to="/student/plan"
-          className="btn btn-primary"
+          className="btn"
           style={{ marginTop: 12 }}
         >
           Open Degree Plan

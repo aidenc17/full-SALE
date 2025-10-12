@@ -22,7 +22,7 @@ export default function FacultyTiles() {
         </ul>
         <Link
           to="/faculty/approvals"
-          className="btn btn-primary"
+          className="btn"
           style={{ marginTop: 12 }}
           aria-label="Open Approvals"
         >

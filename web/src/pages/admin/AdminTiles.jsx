@@ -18,7 +18,7 @@ export default function AdminTiles() {
           <li>Add new users using valid credentials</li>
           <li>Remove existing users when necessary</li>
         </ul>
-        <Link to="/admin/users" className="btn btn-primary" style={{ marginTop: 12 }}>
+        <Link to="/admin/users" className="btn" style={{ marginTop: 12 }}>
           Open User Management
         </Link>
       </section>
