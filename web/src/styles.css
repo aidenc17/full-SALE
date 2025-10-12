@@ -1,0 +1,915 @@
+/* =========================================================
+   THEME TOKENS
+   - Blue accent in light, Orange accent in dark
+   - Everything references these (no hardcoded hex elsewhere)
+   ========================================================= */
+:root {
+  /* Base colors - used for page backgrounds and text */
+  --bg: #ececec;              /* Main background color (light gray) */
+  --fg: #222;                 /* Main text color (near black) */
+  --surface: #fcfcfc;         /* Cards, inputs, elevated surfaces (off-white) */
+  --muted: #c4c4c4;           /* Borders, disabled states (medium gray) */
+  --page-bg: #fcfcfc;         /* Background for the main content area */
+
+  /* Brand accent colors - BLUE in light mode */
+  --accent: #5b7cff;          /* Primary brand color - buttons, links, highlights */
+  --accent-soft: #eef3ff;     /* Soft wash for hover states and focus rings */
+  --accent-contrast: #ffffff; /* Text color when ON accent background */
+
+  /* Component states */
+  --active-bg: var(--accent-soft); /* Background for active navigation items */
+
+  /* Effects */
+  --shadow1: 1px 1px 2px rgba(0, 0, 0, .05), 4px 6px 20px rgba(0, 0, 0, .08); /* Standard drop shadow */
+
+  /* Error states */
+  --danger-bg: #fff3f3;       /* Error message background */
+  --danger-border: #ffd6d6;   /* Error message border */
+  --danger-fg: #a40000;       /* Error message text */
+}
+
+/* DARK MODE - same structure, different colors */
+:root[data-theme="dark"] {
+  /* Base colors for dark mode */
+  --bg: #0f1115;              /* Dark background */
+  --fg: #e8e8ea;              /* Light text */
+  --surface: #171a21;         /* Slightly lighter than bg for cards */
+  --muted: #2a2f3a;           /* Darker borders */
+  --page-bg: #171a21;         /* Main content area background */
+
+  /* Brand accent colors - ORANGE in dark mode */
+  --accent: #ff9b3d;          /* Primary brand color switches to orange */
+  --accent-soft: rgba(255, 155, 61, .18); /* Semi-transparent orange wash */
+  --accent-contrast: #1a1a1a; /* Dark text on orange background */
+
+  /* Component states */
+  --active-bg: var(--accent-soft);
+
+  /* Effects - stronger shadows for dark mode */
+  --shadow1: 1px 1px 2px rgba(0, 0, 0, .4), 4px 8px 10px rgba(0, 0, 0, .55);
+
+  /* Error states for dark mode */
+  --danger-bg: #2a1416;
+  --danger-border: #5a1d24;
+  --danger-fg: #ffb3bd;
+}
+
+/* Page gutters (side rails) background - shows on wide screens outside main content */
+:root {
+  --rails-bg: #eeeff3;        /* Gutter color in light mode */
+}
+
+:root[data-theme="dark"] {
+  --rails-bg: #0d1016;        /* Gutter color in dark mode */
+}
+/* =========================================================
+   BASE / RESET
+   ========================================================= */
+
+/* Apply border-box to all elements for easier sizing calculations */
+* {
+  box-sizing: border-box;
+}
+
+/* Body - sets up the default page styling */
+body {
+  margin: 0;                                    /* Remove default browser margin */
+  font-family: system-ui, Arial, sans-serif;    /* Use system font stack for performance */
+  color: var(--fg);                             /* Default text color */
+  background: var(--bg);                        /* Page background color */
+}
+
+/* Generic header styling - can be overridden by specific components */
+header {
+  background: var(--surface);                   /* Use surface color for elevated look */
+  border-bottom: 1px solid var(--muted);        /* Subtle divider */
+}
+
+/* Link styling with smooth transitions */
+a {
+  color: var(--accent);                         /* Links use brand color */
+  transition: color .18s ease, box-shadow .18s ease; /* Smooth color/shadow changes */
+}
+
+a:hover {
+  color: var(--accent);                         /* Keep accent color on hover */
+  text-decoration: underline;                   /* Add underline for clarity */
+}
+
+a:visited {
+  color: var(--fg);                             /* Visited links blend with regular text */
+  text-decoration: none;                        /* Remove underline from visited links */
+}
+
+/* Utility class for monospace text (code, terminal output, etc.) */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Badge component - small pill-shaped labels */
+.badge {
+  display: inline-block;                        /* Sits inline with text */
+  padding: 2px 8px;                             /* Compact padding */
+  border-radius: 999px;                         /* Fully rounded ends (pill shape) */
+  background: var(--muted);                     /* Subtle gray background */
+}
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+
+/* Generic container - centers content with max width */
+.container {
+  max-width: 1100px;                            /* Don't get too wide on large screens */
+  margin: 16px auto;                            /* Center horizontally with vertical spacing */
+  padding: 0 16px;                              /* Side padding for mobile */
+}
+
+/* Responsive grid - automatically adjusts columns based on space */
+.grid {
+  display: grid;                                /* CSS Grid layout */
+  gap: 16px;                                    /* Space between grid items */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive columns: min 280px, fills available space */
+}
+
+/* Vertical centering utility - useful for hero sections, modals, etc. */
+.vh-center {
+  min-height: 100vh;                            /* Full viewport height */
+  display: flex;                                /* Flexbox for centering */
+  align-items: center;                          /* Center vertically */
+  justify-content: center;                      /* Center horizontally */
+}
+
+/* ========== NAVIGATION BAR ========== */
+
+/* Main header container - sticky navigation bar at top of page */
+.app-header {
+  display: flex;                                /* Flexbox for horizontal layout */
+  align-items: center;                          /* Vertically center nav items */
+  gap: 16px;                                    /* Space between nav elements */
+  padding: 12px 16px;                           /* Comfortable click targets */
+  border-bottom: 1px solid var(--muted);        /* Subtle divider from content */
+  background: var(--surface);                   /* Elevated surface color */
+  border-radius: 0 0 12px 12px;                 /* Rounded bottom corners only */
+  width: 100%;                                  /* Full width of container */
+  max-width: none;                              /* Override any inherited max-width */
+  margin: 0;                                    /* No margin */
+  box-shadow: var(--shadow1);                   /* Subtle elevation shadow */
+}
+
+/* Logo/brand link in navigation */
+.nav-logo {
+  display: inline-flex;                         /* Flex container for logo + text */
+  align-items: center;                          /* Vertically center logo and text */
+  gap: 8px;                                     /* Space between icon and text */
+  text-decoration: none;                        /* Remove link underline */
+  color: inherit;                               /* Use default text color */
+  font-weight: 700;                             /* Bold brand name */
+}
+
+.nav-logo svg {
+  color: var(--accent);                         /* Brand color for logo icon */
+}
+
+/* Container for navigation links */
+.nav-links {
+  display: flex;                                /* Horizontal link layout */
+  gap: 12px;                                    /* Space between links */
+  flex-wrap: wrap;                              /* Wrap on small screens if needed */
+}
+
+/* Individual navigation link */
+.nav-link {
+  text-decoration: none;                        /* No underline */
+  padding: 6px 10px;                            /* Comfortable click target */
+  border-radius: 6px;                           /* Rounded corners */
+  color: inherit;                               /* Use default text color */
+  transition: background .18s ease, box-shadow .18s ease; /* Smooth hover effects */
+}
+
+/* Active/current page indicator */
+.nav-link[aria-current="page"] {
+  background: var(--active-bg);                 /* Highlight background */
+  font-weight: 600;                             /* Slightly bolder text */
+  color: var(--fg);                             /* Ensure text is readable */
+}
+
+/* Hover state for navigation links */
+.nav-link:hover {
+  background: var(--accent-soft);               /* Subtle brand-colored wash */
+}
+
+/* Right-aligned nav items (user menu, notifications, etc.) */
+.nav-right {
+  margin-left: auto;                            /* Push to right side of header */
+  display: flex;                                /* Flexbox for items */
+  align-items: center;                          /* Vertically center items */
+  gap: 12px;                                    /* Space between items */
+}
+
+/* User info/tag in navigation */
+.user-tag {
+  opacity: .75;                                 /* Slightly dimmed for hierarchy */
+}
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+
+/* Utility class to apply brand accent color to text */
+.text-accent {
+  color: var(--accent);
+}
+
+/* Utility class for accent-colored backgrounds (buttons, badges, etc.) */
+.bg-accent {
+  background: var(--accent);                    /* Brand color background */
+  color: var(--accent-contrast);                /* Ensures text is readable on accent */
+}
+
+/* Utility class for soft/subtle accent backgrounds (hover states, highlights) */
+.bg-accent-soft {
+  background: var(--accent-soft);               /* Light wash of brand color */
+}
+
+/* Utility class to apply accent color to borders */
+.border-accent {
+  border-color: var(--accent);
+}
+
+/* =========================================================
+   COMPONENTS
+   ========================================================= */
+
+/* ========== CARDS ========== */
+
+/* Card component - elevated container for content */
+.card {
+  background: var(--surface);                   /* Elevated surface color */
+  border: 1px solid var(--muted);               /* Subtle border */
+  border-radius: 12px;                          /* Rounded corners */
+  padding: 16px;                                /* Internal spacing */
+  box-shadow: var(--shadow1);                   /* Subtle elevation shadow */
+  transition: box-shadow .18s ease, transform .1s ease; /* Smooth hover animation */
+}
+
+/* Card heading styling */
+.card h3 {
+  margin: 0 0 12px;                             /* Remove top margin, add bottom spacing */
+  font-weight: 600;                             /* Semi-bold */
+}
+
+/* Selected/active card state */
+.card.is-selected {
+  background: var(--accent-soft);               /* Highlight with soft accent color */
+}
+
+/* ========== TABLES ========== */
+
+/* Table component - data display */
+.table {
+  width: 100%;                                  /* Full width of container */
+  border-collapse: collapse;                    /* Remove spacing between cells */
+}
+
+/* Table cells - both headers and data */
+.table th,
+.table td {
+  border-top: 1px solid var(--muted);          /* Horizontal divider lines */
+  padding: 8px;                                 /* Cell padding for readability */
+  text-align: left;                             /* Left-align content */
+}
+
+/* ========== BUTTONS ========== */
+
+.btn {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+  transition: box-shadow .18s ease, background .18s ease, transform .04s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--muted);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: color-mix(in sRGB, var(--accent) 70%, #000 30%);
+}
+
+.btn-primary:hover {
+  background: color-mix(in sRGB, var(--accent) 85%, #000 15%);
+}
+
+.btn:not(.btn-primary):hover {
+  background: color-mix(in sRGB, var(--accent-soft) 60%, transparent);
+}
+
+/* ========== NOTIFICATION BELL ========== */
+
+/* Bell button - used for notifications in header */
+.bell {
+  position: relative;                           /* Needed for badge positioning */
+  border: 1px solid var(--muted);               /* Subtle border */
+  background: var(--surface);                   /* Surface color */
+  color: var(--fg);                             /* Text/icon color */
+  border-radius: 8px;                           /* Rounded corners */
+  padding: 6px 10px;                            /* Comfortable click target */
+  cursor: pointer;                              /* Shows it's clickable */
+}
+
+/* Bell hover state - subtle background change */
+.bell:hover {
+  background: color-mix(in sRGB, var(--surface) 20%, transparent); /* Slightly lighter/darker on hover */
+}
+
+/* Icon alignment fix inside bell button */
+.bell svg {
+  vertical-align: -2px;                         /* Optically center the icon */
+}
+
+/* Notification count badge - appears on top-right of bell */
+.bell-badge {
+  position: absolute;                           /* Position relative to .bell parent */
+  top: -6px;                                    /* Stick out above button */
+  right: -6px;                                  /* Stick out to the right */
+  min-width: 18px;                              /* Minimum size (becomes wider with more digits) */
+  height: 18px;                                 /* Fixed height */
+  padding: 0 4px;                               /* Horizontal padding for multi-digit numbers */
+  border-radius: 999px;                         /* Perfect circle/pill shape */
+  background: var(--accent);                    /* Attention-grabbing brand color */
+  color: #fff;                                  /* White text for contrast */
+  font-size: 12px;                              /* Small, readable text */
+  display: inline-flex;                         /* Flexbox for centering */
+  align-items: center;                          /* Vertically center number */
+  justify-content: center;                      /* Horizontally center number */
+  border: 2px solid var(--surface);             /* Ring around badge matches surface behind it */
+}
+
+/* ========== NOTIFICATION POPOVER ========== */
+
+/* Popover container - dropdown that appears below bell button */
+.popover {
+  position: absolute;                           /* Position relative to parent */
+  top: calc(100% + 8px);                        /* 8px below the trigger element */
+  right: 0;                                     /* Align to right edge of parent */
+  width: 320px;                                 /* Fixed width for consistent layout */
+  max-height: 60vh;                             /* Don't take up entire screen */
+  overflow: auto;                               /* Scroll if content overflows */
+  background: var(--surface);                   /* Card-like surface */
+  color: var(--fg);                             /* Default text color */
+  border: 1px solid var(--muted);               /* Subtle border */
+  border-radius: 12px;                          /* Rounded corners */
+  box-shadow: var(--shadow1);                   /* Elevation shadow */
+  z-index: 30;                                  /* Appears above other content */
+}
+
+/* Popover arrow/pointer - points to the bell button */
+.popover::before {
+  content: "";                                  /* Empty content creates the shape */
+  position: absolute;                           /* Position relative to popover */
+  top: -8px;                                    /* Position above popover edge */
+  right: 16px;                                  /* Align roughly with bell button */
+  border-width: 0 8px 8px 8px;                  /* Creates downward triangle */
+  border-style: solid;                          /* Solid borders */
+  border-color: transparent transparent var(--surface) transparent; /* Only bottom border visible */
+}
+
+/* Popover header section */
+.popover-head {
+  display: flex;                                /* Flexbox layout */
+  align-items: center;                          /* Vertically center content */
+  gap: 8px;                                     /* Space between items */
+  padding: 10px 12px;                           /* Internal spacing */
+  border-bottom: 1px solid var(--muted);        /* Divider from content */
+}
+
+/* List of notifications */
+.popover-list {
+  list-style: none;                             /* Remove bullet points */
+  margin: 0;                                    /* Remove default margin */
+  padding: 0;                                   /* Remove default padding */
+}
+
+/* Individual notification item */
+.popover-item {
+  padding: 10px 12px;                           /* Comfortable spacing */
+  border-bottom: 1px solid var(--muted);        /* Divider between items */
+}
+
+/* Remove border from last notification */
+.popover-item:last-child {
+  border-bottom: 0;                             /* No divider after last item */
+}
+
+/* Row containing notification title and timestamp */
+.popover-title-row {
+  display: flex;                                /* Flexbox for title + time */
+  gap: 8px;                                     /* Space between elements */
+  align-items: baseline;                        /* Align text baselines */
+}
+
+/* Notification title/heading */
+.popover-title {
+  font-weight: 600;                             /* Semi-bold for emphasis */
+}
+
+/* Timestamp in notification */
+.popover-when {
+  margin-left: auto;                            /* Push to right side */
+  font-size: 12px;                              /* Smaller, de-emphasized */
+  opacity: .7;                                  /* Dimmed for hierarchy */
+}
+
+/* Notification description/detail text */
+.popover-detail {
+  font-size: 14px;                              /* Slightly smaller than title */
+  opacity: .9;                                  /* Slightly dimmed */
+}
+
+/* Empty state - shown when no notifications */
+.popover-empty {
+  padding: 16px;                                /* Breathing room */
+  text-align: center;                           /* Center the message */
+  opacity: .8;                                  /* Dimmed to show it's placeholder text */
+}
+
+/* =========================================================
+   INTERACTION LANGUAGE (cohesive hover/focus across UI)
+   ========================================================= */
+
+/* NOTE: This section ensures consistent interaction feedback across all interactive elements.
+   All hover/focus states use the same "halo" pattern with accent colors for brand consistency. */
+
+/* ========== CARD INTERACTIONS ========== */
+
+/* Card hover - lifts up with soft accent glow */
+.card:hover {
+  box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow1); /* Soft accent halo + elevation shadow */
+  transform: translateY(-2px);                  /* Subtle lift effect */
+}
+
+/* Card keyboard focus - stronger accent ring for accessibility */
+.card:focus-within {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px var(--accent-soft), var(--shadow1); /* Crisp inner ring + soft outer glow */
+}
+
+/* ========== NAVIGATION INTERACTIONS ========== */
+
+/* Nav link keyboard focus - accessible focus indicator */
+.nav-link:focus-visible {
+  outline: none;                                /* Remove default browser outline */
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px var(--accent-soft); /* Brand-colored focus ring */
+}
+
+/* ========== BUTTON INTERACTIONS ========== */
+
+/* All button types get same hover halo */
+:is(.btn, .btn-primary, .btn-ghost):hover {
+  box-shadow: 0 0 0 3px var(--accent-soft);    /* Soft accent glow on hover */
+}
+
+/* All button types get same focus ring for keyboard navigation */
+:is(.btn, .btn-primary, .btn-ghost):focus-visible {
+  outline: none;                                /* Remove default browser outline */
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px var(--accent-soft); /* Crisp + soft rings */
+}
+
+/* ========== LINK INTERACTIONS ========== */
+
+/* Regular links get underline-style focus indicator */
+a:focus-visible {
+  outline: none;                                /* Remove default browser outline */
+  box-shadow: 0 2px 0 var(--accent);           /* Accent-colored underline */
+}
+
+/* =========================================================
+   AUTH SCREENS (Login/Register)
+   ========================================================= */
+
+/* ========== AUTH LAYOUT ========== */
+
+/* Wrapper for authentication pages - centers the login/register card */
+.auth-wrap {
+  min-height: calc(100vh - 56px);               /* Full height minus header */
+  display: grid;                                /* Grid for easy centering */
+  place-items: center;                          /* Center both axes */
+  padding: 24px 16px;                           /* Breathing room on mobile */
+  background: var(--bg);                        /* Page background */
+}
+
+/* Authentication card container (login/register form) */
+.auth-card {
+  width: 100%;                                  /* Responsive width */
+  max-width: 460px;                             /* Don't get too wide */
+  background: var(--surface);                   /* Elevated surface */
+  color: var(--fg);                             /* Text color */
+  border-radius: 14px;                          /* Rounded corners */
+  box-shadow: var(--shadow1);                   /* Subtle elevation */
+  padding: 20px 20px 16px;                      /* Internal spacing */
+}
+
+/* Auth page title (e.g., "Log In", "Sign Up") */
+.auth-title {
+  display: flex;                                /* Flexbox for icon + text */
+  align-items: center;                          /* Vertically center */
+  gap: 10px;                                    /* Space between icon and text */
+  font-size: 1.75rem;                           /* Large, prominent */
+  line-height: 1.2;                             /* Tight line height */
+  margin: 0 0 4px;                              /* Small bottom margin */
+}
+
+/* Auth subtitle/description text */
+.auth-subtitle {
+  font-size: 14px;                              /* Smaller supporting text */
+  margin: 0 0 20px;                             /* Space before form */
+  opacity: .8;                                  /* Dimmed for hierarchy */
+}
+
+/* ========== FORM FIELDS ========== */
+
+/* Form field wrapper - adds spacing between fields */
+.form-field {
+  margin-top: 12px;                             /* Consistent spacing */
+}
+
+
+
+/* Form field label */
+.form-label {
+  display: block;                               /* Full width */
+  margin-bottom: 6px;                           /* Space before input */
+  font-weight: 600;                             /* Semi-bold for clarity */
+}
+
+/* Text inputs and select dropdowns */
+.input,
+.demo-select {
+  width: 100%;                                  /* Full width of container */
+  padding: 10px 12px;                           /* Comfortable input size */
+  border-radius: 10px;                          /* Rounded corners */
+  border: 1px solid var(--muted);               /* Subtle border */
+  background: var(--surface);                   /* Surface background */
+  color: var(--fg);                             /* Text color */
+  transition: box-shadow .18s ease, border-color .18s ease, background .18s ease; /* Smooth focus transition */
+}
+
+/* Placeholder text styling */
+.input::placeholder {
+  color: color-mix(in sRGB, var(--fg) 45%, transparent); /* Semi-transparent text color */
+  opacity: .9;                                  /* Slightly visible */
+}
+
+/* Input focus state - soft accent halo (matches button/link pattern) */
+.input:focus,
+.input:focus-visible,
+.demo-select:focus,
+.demo-select:focus-visible {
+  border-color: transparent;                    /* Hide border to avoid double-ring effect */
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px var(--accent-soft); /* Crisp inner + soft outer rings */
+}
+
+/* ========== PASSWORD FIELD WITH TOGGLE ========== */
+
+/* Wrapper for input with icon button (e.g., password visibility toggle) */
+.input-wrap {
+  position: relative;                           /* Positioning context for icon button */
+}
+
+/* Input that has an icon button inside it */
+.input-with-icon {
+  padding-right: 38px;                          /* Make room for icon button */
+}
+
+/* Icon button inside input (e.g., show/hide password) */
+.input-icon-btn {
+  position: absolute;                           /* Position relative to .input-wrap */
+  right: 8px;                                   /* Align to right edge */
+  top: 50%;                                     /* Vertical center */
+  transform: translateY(-50%);                  /* Perfect vertical centering */
+  border: 0;                                    /* No border */
+  background: transparent;                      /* Transparent background */
+  padding: 6px;                                 /* Click target padding */
+  border-radius: 8px;                           /* Rounded for consistency */
+  color: inherit;                               /* Use parent text color */
+  cursor: pointer;                              /* Shows it's clickable */
+}
+
+/* Icon button hover state */
+.input-icon-btn:hover {
+  background: color-mix(in sRGB, var(--active-bg) 70%, transparent); /* Subtle background on hover */
+}
+
+/* Icon button keyboard focus */
+.input-icon-btn:focus-visible {
+  outline: none;                                /* Remove default outline */
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 6px var(--accent-soft); /* Brand focus ring */
+}
+/* ========== AUTH PAGE ACTIONSandFOOTERS ========== */
+
+/* Centered container for action buttons (login, register, etc.) */
+.actions-center {
+  display: flex;                                /* Flexbox for centering */
+  justify-content: center;                      /* Center horizontally */
+  margin-top: 20px;                             /* Space above buttons */
+}
+
+/* Footer text on auth pages (e.g., "Don't have an account? Sign up") */
+.auth-footnote {
+  text-align: center;                           /* Center the text */
+  font-size: .9rem;                             /* Slightly smaller */
+  opacity: .8;                                  /* Dimmed for hierarchy */
+  margin-top: 12px;                             /* Space above */
+}
+
+/* Demo/helper text on auth pages */
+.auth-demo {
+  margin-top: 10px;                             /* Space above */
+  text-align: center;                           /* Center the text */
+}
+
+/* Logo icon in auth page title - ensure it uses accent color */
+.auth-title .nav-logo svg {
+  color: var(--accent);                         /* Brand accent color */
+  flex-shrink: 0;                               /* Don't let it shrink */
+}
+
+/* ========== FOCUS STATE OVERRIDES ========== */
+
+/* Remove browser default focus outlines - we use custom halos instead */
+:is(.input, .demo-select, .btn, .input-icon-btn):focus,
+:is(.input, .demo-select, .btn, .input-icon-btn):focus-visible {
+  outline: none;                                /* Remove blue outline */
+}
+
+/* Custom focus halo for form inputs (reaffirmed here for specificity) */
+:is(.input, .demo-select):focus,
+:is(.input, .demo-select):focus-visible {
+  border-color: transparent;                    /* Hide border to avoid double-ring */
+  box-shadow:
+    0 0 0 2px var(--accent),                    /* Crisp inner accent ring */
+    0 0 0 6px var(--accent-soft);               /* Soft outer glow */
+}
+
+/* =========================================================
+   PAGE RAIL LAYOUT
+   ========================================================= */
+
+/* Maximum width for main content area */
+:root {
+  --page-max: 1100px;                           /* Content max-width (adjustable) */
+}
+
+/* Main page container - centers content and creates side gutters on wide screens */
+.page-rails {
+  display: flex;                                /* Flexbox for vertical stacking */
+  flex-direction: column;                       /* Stack header and content vertically */
+  min-height: 100vh;                            /* At least full viewport height */
+  max-width: 1200px;                            /* Maximum width before side gutters appear */
+  margin: 0 auto;                               /* Center horizontally */
+  background: var(--page-bg);                   /* Main content background */
+  position: relative;                           /* Positioning context */
+  isolation: isolate;                           /* Create stacking context for z-index */
+}
+
+/* On wide screens, add dark overlay to side gutters */
+@media (min-width: 900px) {
+  .page-rails {
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .10); /* Massive shadow creates gutter effect */
+  }
+}
+
+/* Ensure header fills the page rail width */
+.app-header {
+  width: 100%;                                  /* Full width of .page-rails */
+  margin: 0;                                    /* No margin */
+  max-width: none;                              /* Override any inherited max-width */
+}
+
+/* Content area wrapper - fills remaining vertical space */
+.page-rails > .routes-wrapper {
+  flex: 1;                                      /* Grow to fill available space */
+  flex-direction: column;                       /* Stack content vertically */
+}
+
+/* ========== ACTIVE NAV LINK INTERACTIONS ========== */
+
+/* Active nav link still gets hover effect - subtle lift */
+.nav-link[aria-current="page"]:hover {
+  box-shadow: 0 0 0 3px var(--accent-soft);    /* Soft accent halo even when active */
+}
+
+/* ========== ICON SIZING ========== */
+
+/* Logo icon sizing */
+.nav-logo svg { 
+  width: 28px; 
+  height: 28px; 
+}
+
+/* Theme toggle icon styling */
+.theme-toggle svg { 
+  color: var(--accent);                         /* Brand accent color */
+  opacity: 0.70;                                /* Slightly dimmed at rest */
+  transition: opacity 0.2s ease, filter 0.2s ease; /* Smooth brightness change */
+  display: block;                               /* Remove inline spacing */
+}
+
+/* ========== ICON BUTTON SYSTEM ========== */
+
+/* Global icon button dimensions - ensures consistency */
+:root { 
+  --icon-btn: 38px;                             /* Button container size */
+  --icon-size: 20px;                            /* Icon size inside button */
+}
+
+/* Icon-only button base styles */
+.icon-btn {
+  display: inline-flex;                         /* Flexbox for centering */
+  align-items: center;                          /* Vertically center icon */
+  justify-content: center;                      /* Horizontally center icon */
+  width: var(--icon-btn);                       /* Fixed square size */
+  height: var(--icon-btn);                      /* Fixed square size */
+  padding: 0;                                   /* No padding - icon centers itself */
+  border-radius: 8px;                           /* Rounded corners */
+}
+
+/* ========== THEME TOGGLE BUTTON ========== */
+
+/* Theme toggle button - matches surface/border style of other UI elements */
+.btn.theme-toggle {
+  background-color: var(--surface);             /* Surface background */
+  border: 1px solid var(--muted);               /* Subtle border */
+  color: var(--fg);                             /* Text/icon color */
+  opacity: .85;                                 /* Slightly dimmed at rest */
+  transition: opacity .2s ease, filter .2s ease, background .2s ease; /* Smooth hover */
+}
+
+/* Theme toggle hover - brighten slightly */
+.btn.theme-toggle:hover {
+  opacity: 1;                                   /* Full opacity on hover */
+  filter: brightness(1.05);                     /* Slight brightness boost */
+}
+
+/* Theme toggle icon - ensure proper centering and accent color */
+.btn.theme-toggle svg {
+  width: var(--icon-size);                      /* Consistent icon size */
+  height: var(--icon-size);                     /* Consistent icon size */
+  display: block;                               /* Remove inline spacing */
+  margin: 0;                                    /* No margin (was causing offset) */
+  background: transparent;                      /* No background on SVG */
+  color: var(--accent);                         /* Brand accent color */
+}
+
+/* Theme toggle focus state - use custom halo instead of browser default */
+.btn.theme-toggle:focus,
+.btn.theme-toggle:focus-visible {
+  outline: none;                                /* Remove default outline */
+  box-shadow:
+    0 0 0 2px var(--accent),                    /* Crisp inner ring */
+    0 0 0 6px var(--accent-soft);               /* Soft outer glow */
+}
+
+/* Firefox-specific fix - removes inner focus dotted line */
+button.theme-toggle::-moz-focus-inner { 
+  border: 0;                                    /* Remove dotted border */
+  padding: 0;                                   /* Remove padding */
+}
+
+/* ========== FORM LAYOUT HELPERS ========== */
+
+/* ========== RESPONSIVE FORM STACK LAYOUT ========== */
+
+/* Wrapper for a group of form fields - stacks them with consistent spacing */
+.form-stack {
+  display: grid;                                /* Grid layout for flexible columns */
+  grid-template-columns: 1fr;                   /* Single column on mobile */
+  row-gap: 12px;                                /* Space between rows */
+  column-gap: 32px;                             /* Space between columns (when 2-col) */
+}
+
+/* Two-column layout on tablet and up */
+@media (min-width: 720px) {
+  .form-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Two equal columns */
+    row-gap: 14px;                              /* Slightly more row spacing */
+    column-gap: 48px;                           /* Wider column gap for breathing room */
+  }
+}
+
+/* any row that should span across (buttons, warnings, etc.) */
+.form-stack .full {
+  grid-column: 1 / -1;
+}
+
+/* Individual form field container - label + input/select */
+.form-field {
+  display: flex;                                /* Flexbox for vertical stacking */
+  flex-direction: column;                       /* Stack label above input */
+  gap: 6px;                                     /* Space between label and control */
+}
+
+/* Form field label */
+.form-label {
+  font-weight: 600;                             /* Semi-bold for clarity */
+}
+
+/* ========== UNIFIED FORM CONTROLS ========== */
+
+/* Consistent styling for all form inputs and selects */
+.input,
+.select,
+.demo-select {
+  width: 100%;                                  /* Full width of container */
+  padding: 10px 12px;                           /* Comfortable input size */
+  border-radius: 10px;                          /* Rounded corners */
+  border: 1px solid var(--muted);               /* Subtle border */
+  background: var(--surface);                   /* Surface background */
+  color: var(--fg);                             /* Text color */
+  transition: box-shadow .18s ease, border-color .18s ease, background .18s ease; /* Smooth focus */
+}
+
+/* ========== NATIVE SELECT STYLING ========== */
+
+/* Remove browser default select arrow and styling */
+.select {
+  -webkit-appearance: none;                     /* Remove Safari/Chrome default */
+  -moz-appearance: none;                        /* Remove Firefox default */
+  appearance: none;                             /* Remove standard default */
+}
+
+/* ========== CUSTOM SELECT DROPDOWN ARROW ========== */
+
+/* Light mode - custom dropdown arrow (replaces browser default) */
+.select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23aaa' d='M1 1l5 5 5-5'/></svg>");
+  background-repeat: no-repeat;                 /* Don't tile the arrow */
+  background-position: right 12px center;       /* Position arrow on right side */
+  background-size: 12px;                        /* Arrow size */
+  padding-right: 32px;                          /* Make room for arrow */
+}
+
+/* Dark mode - lighter arrow color for visibility */
+/* NOTE: !important needed here because dark mode rule must override light mode background-image */
+:root[data-theme="dark"] .select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23ccc' d='M1 1l5 5 5-5'/></svg>") !important; /* Lighter gray arrow */
+  background-repeat: no-repeat !important;      /* Don't tile */
+  background-position: right 12px center !important; /* Position on right */
+  background-size: 12px !important;             /* Arrow size */
+  padding-right: 32px !important;               /* Make room for arrow */
+}
+
+/* ========== FORM CONTROL FOCUS STATES ========== */
+
+/* Unified focus halo for all form controls (matches buttons/inputs) */
+.input:focus,
+.input:focus-visible,
+.select:focus,
+.select:focus-visible,
+.demo-select:focus,
+.demo-select:focus-visible {
+  border-color: transparent;                    /* Hide border to avoid double-ring */
+  outline: none;                                /* Remove default outline */
+  box-shadow:
+    0 0 0 2px var(--accent),                    /* Crisp inner accent ring */
+    0 0 0 6px var(--accent-soft);               /* Soft outer glow */
+}
+
+/* ========== DARK MODE ADJUSTMENTS ========== */
+
+/* Slightly darken selects in dark mode to reduce brightness */
+:root[data-theme="dark"] .select {
+  background: color-mix(in sRGB, var(--surface) 92%, black 8%); /* Subtle darkening */
+  border-color: color-mix(in sRGB, var(--muted) 85%, black 15%); /* Darker border */
+}
+
+/* ========== NUMBER INPUT CLEANUP ========== */
+
+/* Remove spinner arrows from number inputs for cleaner look (optional) */
+.input[type="number"] {
+  -moz-appearance: textfield;                   /* Firefox: remove spinners */
+}
+
+/* Chrome/Safari: remove spinner arrows */
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;                     /* Remove spinner */
+  margin: 0;                                    /* Remove margin */
+}
+
+/* Auto-center cards with inline max-width styles */
+/* Targets cards like: <div className="card" style={{ maxWidth: 560 }}> */
+.card[style*="max-width"] {
+  margin-left: auto;                            /* Center horizontally */
+  margin-right: auto;
+}
