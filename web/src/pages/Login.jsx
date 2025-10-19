@@ -1,117 +1,187 @@
-import { useState } from 'react';                  //lets us store state (form fields, errors, etc)
-import { useNavigate } from 'react-router-dom';    //hook to change routes after login
+/**
+ * Login.jsx
+ *
+ * Authentication entry point with form validation
+ *
+ * FEATURES:
+ * - Username/password validation (see validation.js)
+ * - Password visibility toggle
+ * - Inline error messages
+ * - Auto-redirect to user's role-specific dashboard
+ * - Demo credential autofill for testing
+ *
+ * VALIDATION RULES:
+ * - Username: Exactly 8 lowercase letters
+ * - Password: Exactly 12 characters (1 uppercase, 1 lowercase, 1 digit, 1 symbol)
+ *
+ * SESSION MANAGEMENT:
+ * - Uses sessionStorage (auto-clears when you close the browser)
+ * - Handled by api.js login() function
+ */
 
-//local imports
-import { isValidUsername, isValidPassword } from '../utils/validation';  //our helper functions that enforce the validation rules
-import { login } from '../api';                                         //mock login API (stores user in sessionStorage)
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { isValidUsername, isValidPassword } from "../utils/validation";
+import { login } from "../api";
+import { Eye, EyeOff, CalendarHeart } from "lucide-react";
 
-//component definition: login page
+// Demo login info for testing (needs to follow validation rules, makes testing easier)
+const DEMO_CREDENTIALS = {
+  student: { username: "studentx", password: "Aa1aaaaaaa!1" },
+  faculty: { username: "facultyx", password: "Aa1aaaaaaa!1" },
+  admin: { username: "adminxyz", password: "Aa1aaaaaaa!1" },
+};
+
 export default function Login() {
-  //STATE HOOKS
-  //track what's typed into the username input
-  const [username, setUsername] = useState('');
-
-  //track what's typed into the password input
-  const [password, setPassword] = useState('');
-
-  //track any error messages
-  const [error, setError] = useState('');
-
-  //track whether the form is in "loading" mode (so we can disable the button)
+  // Form state
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  //useNavigate() gives us a function we can call to change pages after successful login
-  const nav = useNavigate();
+  const navigate = useNavigate();
+  const { state } = useLocation();
 
-  // SUBMIT HANDLER
-  async function onSubmit(e) {
-    e.preventDefault();    //stop the browser from doing a full page refresh
-    setError('');          //clear any previous error
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
 
-    //1st validation: USERNAME
-    //sean's rule: must be EXACTLY 8 lowercase letters ("abcdefgh")
+    // Validate username
     if (!isValidUsername(username)) {
-      setError('Username must be exactly 8 lowercase letters.');
-      return;  //stop here, don't even check password if username is wrong
+      setError("Username has to be exactly 8 lowercase letters.");
+      return;
     }
 
-    //2nd validation: PASSWORD
-    //sean's rule: >=12 characters, must include: >= uppercase letter, >= lowercase letter, >=int, >=symbol
+    // Validate password
     if (!isValidPassword(password)) {
       setError(
-        'Password must be at least 12 characters and include 1 uppercase, 1 lowercase, 1 digit, and 1 symbol.'
+        "Password needs to be exactly 12 characters and have 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol.."
       );
-      return;  //stop here if password doesn't meet
+      return;
     }
 
     try {
-      //turn on loading state (so button can indicate it's logging you in)
       setLoading(true);
 
-      //call our fake login API (which just decides a role and puts user in sessionStorage)
       const user = await login(username, password);
 
-      //redirect the user to the dashboard for their role: student = /student, faculty = /faculty, admin = /admin
-      nav('/' + user.role);
-
-    } catch {
-      //if login() throws an error show message
-      setError('You broke something, wtg.');
+      // Redirect to intended destination or role dashboard
+      const destination = state?.from?.pathname || `/${user.role}`;
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setError("Somehow, you broke this.  Congrats.");
     } finally {
-      //turn off loading state whether login succeeded or failed
       setLoading(false);
     }
   }
 
-  // JSX RENDER (the UI)
+  function fillDemoCredentials(role) {
+    const credentials = DEMO_CREDENTIALS[role];
+    if (credentials) {
+      setUsername(credentials.username);
+      setPassword(credentials.password);
+    }
+  }
+
   return (
-    <div
-      style={{                   //center box on page
-        maxWidth: 360,          //make the box not too wide
-        margin: '80px auto',    //80px from top, centered horizontally
-        padding: 24,            //space inside the box
-        border: '1px solid #ddd',   //light gray border
-        borderRadius: 8             //rounded corners
-      }}
-    >
-      {/* page title */}
-      <h2 style={{ marginTop: 0 }}>DegreeAdmin Sign in</h2>
+    <div className="auth-wrap">
+      <form className="auth-card" onSubmit={handleSubmit} noValidate>
+        {/* Header */}
+        <h1 className="auth-title">
+          <div className="nav-logo">
+            <CalendarHeart size={32} aria-hidden="true" />
+          </div>
+          Sign in
+        </h1>
+        <p className="auth-subtitle">Log in to access your account.</p>
 
-      {/* FORM START */}
-      <form onSubmit={onSubmit} style={{ display: 'grid', gap: 12 }}>
-        {/* username input */}
-        <label>
-          Username
+        {/* Username field */}
+        <div className="form-field">
+          <label htmlFor="username" className="form-label">
+            Username
+          </label>
           <input
+            id="username"
+            className="input"
+            type="text"
+            placeholder="Enter your username"
+            autoComplete="username"
             value={username}
-            onChange={e => setUsername(e.target.value)}  //keep state in sync as user types
+            onChange={(e) => setUsername(e.target.value)}
+            aria-invalid={!!error}
           />
-        </label>
+        </div>
 
-        {/* password input */}
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}  //keep state in sync as user types
-          />
-        </label>
+        {/* Password field with visibility toggle */}
+        <div className="form-field">
+          <label htmlFor="password" className="form-label">
+            Password
+          </label>
+          <div className="input-wrap">
+            <input
+              id="password"
+              className="input input-with-icon"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={!!error}
+            />
+            <button
+              type="button"
+              className="input-icon-btn"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </div>
 
-        {/* show error message in red if there is one */}
-        {error && <div style={{ color: '#b00020' }}>{error}</div>}
+        {/* Error message */}
+        {error && (
+          <p role="alert" className="error">
+            {error}
+          </p>
+        )}
 
-        {/* submit button: disabled while loading, and text changes to "Signing in..." while waiting */}
-        <button disabled={loading}>
-          {loading ? 'Signing in...' : 'Sign in'}
-        </button>
+        {/* Submit button */}
+        <div className="actions-center">
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </div>
+
+        {/* Session info */}
+        <p className="auth-footnote">
+          Sessions end when you log out or close your browser.
+        </p>
       </form>
-      {/* FORM END */}
 
-      {/* small footer note about session longevity */}
-      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 12 }}>
-        Sessions end on logout or browser close.
-      </p>
+      {/* Demo credentials dropdown */}
+      <div className="auth-demo">
+        <select
+          id="demo"
+          className="demo-select"
+          onChange={(e) => {
+            const role = e.target.value;
+            if (role) {
+              fillDemoCredentials(role);
+              e.target.value = ""; // Reset selection
+            }
+          }}
+          defaultValue=""
+        >
+          <option value="" disabled>
+            Fill demo credentials...
+          </option>
+          <option value="student">Student (studentx)</option>
+          <option value="faculty">Faculty (facultyx)</option>
+          <option value="admin">Admin (adminxyz)</option>
+        </select>
+      </div>
     </div>
   );
 }

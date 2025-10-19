@@ -1,30 +1,60 @@
-//import the shared nav
-import Nav from '../../components/Nav';
+/**
+ * FacultyDashboard.jsx
+ *
+ * Faculty landing page after login
+ *
+ * FEATURES:
+ * - Welcome message with faculty info
+ * - Toggle to show/hide feature tiles
+ * - Tile visibility preference saved to localStorage
+ *
+ * NAVIGATION:
+ * Provides entry points for faculty features:
+ * 1. Approvals - Review student requests
+ * 2. Advisees - Manage assigned students
+ */
 
-//component for the faculty dashboard page
+import { useState } from "react";
+import { getCurrentUser } from "../../api";
+import FacultyTiles from "./FacultyTiles";
+
 export default function FacultyDashboard() {
+  const user = getCurrentUser();
+
+  // Persist tile visibility preference
+  const [showTiles, setShowTiles] = useState(
+    () => localStorage.getItem("showFacultyTiles") !== "false"
+  );
+
+  function toggleTiles() {
+    const newValue = !showTiles;
+    setShowTiles(newValue);
+    localStorage.setItem("showFacultyTiles", String(newValue));
+  }
+
   return (
-    <>
-      {/* nav bar always shown */}
-      <Nav />
-
-      {/* main content area of the faculty dashboard */}
-      <div style={{ padding: 16 }}>
-        {/* section title */}
-        <h3>Faculty Dashboard</h3>
-
-        {/* placeholder list of faculty features. these directly map to sean's req */}
-        <ul>
-          {/* faculty must be able to see which students they advise, so they can review each student's degree plan */}
-          <li>Advisees list</li>
-
-          {/* faculty must be able to approve or deny: under load (< 11 credits) requests, overload (> 20 credits) requests, and co-op requests */}
-          <li>Approve under/over-load, co-op</li>
-
-          {/* faculty can send feedback to students. this must appear as notifications for students */}
-          <li>Send guidance (shows in student notifications)</li>
-        </ul>
+    <div className="container">
+      {/* Tile toggle button */}
+      <div
+        style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}
+      >
+        <button className="btn btn-ghost" onClick={toggleTiles}>
+          {showTiles ? "Hide tiles" : "Show tiles"}
+        </button>
       </div>
-    </>
+      {/* Welcome card */}
+      <div className="card" style={{ marginTop: 16 }}>
+        <h3 style={{ marginBottom: 4 }}>
+          Faculty Dashboard
+          {user?.username && ` — ${user.username}`}
+        </h3>
+        <p style={{ opacity: 0.8, marginTop: 0 }}>
+          Review student requests, manage advisees, and provide guidance.
+        </p>
+      </div>
+
+      {/* Feature tiles (conditionally rendered) */}
+      {showTiles && <FacultyTiles />}
+    </div>
   );
 }

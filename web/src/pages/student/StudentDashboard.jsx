@@ -1,33 +1,66 @@
-//import the shared nav bar
-import Nav from '../../components/Nav';
+/**
+ * StudentDashboard.jsx
+ * 
+ * Student landing page after login
+ * 
+ * FEATURES:
+ * - Welcome message with user info
+ * - Toggle to show/hide feature tiles
+ * - Tile visibility preference saved to localStorage
+ * 
+ * NAVIGATION:
+ * Provides three main entry points:
+ * 1. Degree Plan - Course planning
+ * 2. Requests - Co-op and credit requests
+ * 3. Notifications - Faculty communications
+ */
 
-//component for the student dashboard page
+import { useState } from "react";
+import { getCurrentUser } from "../../api";
+import DashboardTiles from "./DashboardTiles";
+
 export default function StudentDashboard() {
+  const user = getCurrentUser();
+
+  // Persist tile visibility preference
+  const [showTiles, setShowTiles] = useState(
+    () => localStorage.getItem("showStudentTiles") !== "false"
+  );
+
+  function toggleTiles() {
+    const newValue = !showTiles;
+    setShowTiles(newValue);
+    localStorage.setItem("showStudentTiles", String(newValue));
+  }
+
   return (
-    <>
-      {/* always show the nav bar at the top */}
-      <Nav />
-
-      {/* main content area of the student dashboard */}
-      <div style={{ padding: 16 }}>
-        {/* section title */}
-        <h3>Student Dashboard</h3>
-
-        {/* placeholder list of features the student will use, these directly tie to the project req */}
-        <ul>
-          {/* req: students choose 2 majors and 2 minors (or a cert) */}
-          <li>Select majors/minors</li>
-
-          {/* req: generate an n semester plan that respects prereqs, caps, and offerings */}
-          <li>Set N semesters, Generate Plan</li>
-
-          {/* req: allow students to request a semester long co-op, which shifts their plan and needs faculty approval */}
-          <li>Request Co-op</li>
-
-          {/* req: students must be able to see notifications */}
-          <li>View Notifications</li>
-        </ul>
+    <div className="container">
+      {/* Tile toggle button */}
+      <div
+        style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}
+      >
+        <button className="btn btn-ghost" onClick={toggleTiles}>
+          {showTiles ? "Hide tiles" : "Show tiles"}
+        </button>
       </div>
-    </>
+
+      {/* Welcome card */}
+      <div className="card" style={{ marginTop: 16 }}>
+        <h3 style={{ marginBottom: 4 }}>
+          Student Dashboard
+          {user?.username && (
+            <span style={{ fontSize: "0.9em", opacity: 0.7 }}>
+              {` — ${user.username} (${user.role})`}
+            </span>
+          )}
+        </h3>
+        <p style={{ opacity: 0.8, marginTop: 0 }}>
+          Start with your degree plan, make requests, and check notifications.
+        </p>
+      </div>
+
+      {/* Feature tiles (conditionally rendered) */}
+      {showTiles && <DashboardTiles />}
+    </div>
   );
 }

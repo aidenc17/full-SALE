@@ -1,27 +1,60 @@
-//import the shared nav
-import Nav from '../../components/Nav';
+/**
+ * AdminDashboard.jsx
+ *
+ * Admin landing page after login
+ *
+ * FEATURES:
+ * - Welcome message with admin info
+ * - Toggle to show/hide feature tiles
+ * - Tile visibility preference saved to localStorage
+ *
+ * NAVIGATION:
+ * Provides entry points for admin features:
+ * 1. Catalog - Manage course catalog
+ * 2. Users - User management and permissions
+ */
 
-//component for the admin dashboard page
+import { useState } from "react";
+import { getCurrentUser } from "../../api";
+import AdminTiles from "./AdminTiles";
+
 export default function AdminDashboard() {
+  const user = getCurrentUser();
+
+  // Persist tile visibility preference
+  const [showTiles, setShowTiles] = useState(
+    () => localStorage.getItem("showAdminTiles") !== "false"
+  );
+
+  function toggleTiles() {
+    const newValue = !showTiles;
+    setShowTiles(newValue);
+    localStorage.setItem("showAdminTiles", String(newValue));
+  }
+
   return (
-    <>
-      {/* nav bar always shown */}
-      <Nav />
-
-      {/* main content area of the admin dashboard */}
-      <div style={{ padding: 16 }}>
-        {/* section title */}
-        <h3>Admin Dashboard</h3>
-
-        {/* placeholder list of admin features. these directly map to sean's req */}
-        <ul>
-          {/* admins must be able to manage users. min: add and remove students/faculty accounts. this covers the req that different user roles can be created */}
-          <li>Manage users (seeded)</li>
-
-          {/* admins must be able to add/remove from the catalog. this allows them to update courses or req */}
-          <li>Catalog editor (add/remove courses, requirements)</li>
-        </ul>
+    <div className="container">
+      {/* Tile toggle button */}
+      <div
+        style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}
+      >
+        <button className="btn btn-ghost" onClick={toggleTiles}>
+          {showTiles ? "Hide tiles" : "Show tiles"}
+        </button>
       </div>
-    </>
+      {/* Welcome card */}
+      <div className="card" style={{ marginTop: 16 }}>
+        <h3 style={{ marginBottom: 4 }}>
+          Admin Dashboard
+          {user?.username && ` — ${user.username}`}
+        </h3>
+        <p style={{ opacity: 0.8, marginTop: 0 }}>
+          Manage users and maintain the course catalog.
+        </p>
+      </div>
+
+      {/* Feature tiles (conditionally rendered) */}
+      {showTiles && <AdminTiles />}
+    </div>
   );
 }

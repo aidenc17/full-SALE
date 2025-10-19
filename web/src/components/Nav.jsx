@@ -1,47 +1,158 @@
-import { logout, getCurrentUser } from '../api';
-import NotificationsBell from './NotificationsBell';
+/**
+ * Nav.jsx
+ *
+ * Global navigation bar with role-based menus
+ *
+ * FEATURES:
+ * - Shows up on every page (whether you're logged in or not)
+ * - Role-aware navigation links (student/faculty/admin)
+ * - Highlights the active page using aria-current
+ * - Notification bell with unread badge
+ * - Theme toggle (light/dark mode)
+ * - User info display and logout option
+ *
+ * UNAUTHENTICATED STATE:
+ * - Just shows the logo and login button
+ * - Theme toggle still available
+ *
+ * AUTHENTICATED STATE:
+ * - Full navigation with links tailored to your role
+ * - Notifications, user info, and logout
+ *
+ * CUSTOMIZATION:
+ * - Edit the byRole object to add or remove nav links
+ * - Swap out the CalendarHeart icon with our own logo or SVG if we want to
+ * - Styling for the active link is managed via CSS with [aria-current="page"]
+ */
 
-//nav = the top navigation bar shown on every dashboard
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { logout, getCurrentUser } from "../api";
+import NotificationsBell from "./NotificationsBell";
+import ThemeToggle from "./ThemeToggle";
+import { CalendarHeart } from "lucide-react";
+
 export default function Nav() {
-  //grab the current user (stored in sessionStorage by login)
-  //this lets us display their username in the top right corner
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   const user = getCurrentUser();
 
+  /* ========== UNAUTHENTICATED VIEW ========== */
+
+  if (!user) {
+    return (
+      <header className="app-header">
+        {/* Logo */}
+        <div className="nav-logo">
+          <CalendarHeart size={22} aria-hidden="true" />
+          DegreeAdmin
+        </div>
+
+        {/* Theme toggle and login button */}
+        <nav className="nav-right">
+          <ThemeToggle />
+          <Link to="/login" className="btn btn-ghost">
+            Login
+          </Link>
+        </nav>
+      </header>
+    );
+  }
+
+  /* ========== AUTHENTICATED VIEW ========== */
+
+  const role = user.role;
+
+  /**
+   * Role-specific navigation links
+   *
+   * EDIT HERE to add new pages for each role
+   * Each link object: { to: string, label: string }
+   */
+  const byRole = {
+    student: [
+      { to: "/student", label: "Dashboard" },
+      { to: "/student/plan", label: "Degree Plan" },
+      { to: "/student/requests", label: "Requests" },
+      { to: "/student/notifications", label: "Notifications" },
+    ],
+    faculty: [
+      { to: "/faculty", label: "Dashboard" },
+      { to: "/faculty/approvals", label: "Approvals" },
+      { to: "/faculty/students", label: "Advisees" },
+    ],
+    admin: [
+      { to: "/admin", label: "Dashboard" },
+      { to: "/admin/catalog", label: "Catalog" },
+      { to: "/admin/users", label: "Users" },
+    ],
+  };
+
+  const links = byRole[role] || byRole.student;
+
+  // Role-specific homepage for the logo link
+  const homePage =
+    {
+      student: "/student",
+      faculty: "/faculty",
+      admin: "/admin",
+    }[role] || "/student";
+
+  /**
+   * Handle logout
+   * Clears session and redirects to login page
+   */
+  function handleLogout() {
+    logout();
+    navigate("/login", { replace: true });
+  }
+
+  /**
+   * Check if a nav link is active
+   * Dashboard links match exactly, sub-pages by prefix
+   */
+  function isLinkActive(linkPath) {
+    const isDashboard = linkPath.endsWith(role);
+
+    if (isDashboard) {
+      return pathname === linkPath;
+    }
+
+    return pathname === linkPath || pathname.startsWith(linkPath + "/");
+  }
+
   return (
-    <div
-      style={{
-        //flexbox layout: puts title on the left, user controls on the right
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 16px',
-        borderBottom: '1px solid #ddd'
-      }}
-    >
-      {/* left side: app title */}
-      <div style={{ fontWeight: 700 }}>DegreeAdmin</div>
+    <header className="app-header">
+      {/* Logo - links to role-specific home */}
+      <Link to={homePage} className="nav-logo">
+        <CalendarHeart size={22} aria-hidden="true" />
+        <span>DegreeAdmin</span>
+      </Link>
 
-      {/* right side: notifications bell, username, logout button */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        {/* notifications placeholder, right now count=0 is hard coded. */}
-        <NotificationsBell count={0} />
+      {/* Navigation links (role-specific) */}
+      <nav className="nav-links">
+        {links.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className="nav-link"
+            aria-current={isLinkActive(link.to) ? "page" : undefined}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </nav>
 
-        {/* show the logged in user's username (e.g. saaaaaaa).
-            the ? means "safe access", if user is null, it won't crash and be dumb */}
-        <span style={{ opacity: 0.8 }}>{user?.username}</span>
-
-        {/* logout button. on click:
-            1. call logout(), removes the user from sessionStorage
-            2. force redirect to /login by setting window.location.href */}
-        <button
-          onClick={() => {
-            logout();
-            window.location.href = '/login';
-          }}
-        >
+      {/* Right section: theme, notifications, user, logout */}
+      <div className="nav-right">
+        <ThemeToggle />
+        <NotificationsBell />
+        <span className="user-tag">
+          {user.username} ({role})
+        </span>
+        <button onClick={handleLogout} className="btn btn-ghost">
           Logout
         </button>
       </div>
-    </div>
+    </header>
   );
 }
