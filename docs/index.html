@@ -143,7 +143,6 @@
             text-decoration: underline;
         }
 
-
         .member-avatar {
             width: 80px;
             height: 80px;
@@ -174,11 +173,107 @@
             padding: 1.5rem;
             border-left: 4px solid #667eea;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem; /* More space */
+            margin-bottom: 1.5rem;
         }
+        
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
         .coming-soon {
             background: #ffc107;
             color: #212529;
+        }
+
+        /* Carousel Styles */
+        .carousel-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .carousel-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .week-report {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .week-report.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .carousel-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .carousel-btn:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+        }
+
+        .carousel-btn:active {
+            transform: scale(0.95);
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dee2e6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: #667eea;
+            width: 30px;
+            border-radius: 6px;
+        }
+
+        .indicator:hover {
+            background: #adb5bd;
         }
 
         /* Footer */
@@ -277,218 +372,227 @@
                 </div>
             </section>
 
-<!-- Weekly Reports Section -->
-<section id="reports" class="section">
-    <h2>📊 Weekly Team Reports <span class="status-badge coming-soon">Coming Soon</span></h2>
-    
-    <!-- Week 1 -->
-    <div class="week-report">
-        <h3>Week 1 - Week of Monday 8/25/2025 </h3>
-        <div class="report-grid">
-            <div class="report-card">
-                <h4>✅ Work Completed</h4>
-                <p>We came up with our team name, created back-end and front-end repos as well as deliberated on what our tech stack is to be. Tentatively we are doing the front-end in React and the back-end will be Java/Spring Boot/MySQL. We also submitted a list of questions to the project-qa slack chat as requested. We had our first virtual meeting on Thursday 8/29 and plan to meet again next Wednesday the 3rd.</p>
-            </div>
-            <div class="report-card">
-                <h4>📋 Work Planned</h4>
-                <p>Next week we plan on getting more clerical work done, setting up documentation, possibly even getting into some code/scaffolding that can easily be done. We aren't 100% on our back-end tech stack but I could at the least start drafting some DDL</p>
-            </div>
-            <div class="report-card">
-                <h4>👥 Members Present</h4>
-                <p>Aiden, Luke, Evan, Samantha</p>
-            </div>
-            <div class="report-card">
-                <h4>⏰ Meeting Hours</h4>
-                <p><strong>1 hour</strong></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Week 2 -->
-    <div class="week-report">
-        <h3>Week 2 - Week of Monday 9/1/2025 </h3>
-        <div class="report-grid">
-            <div class="report-card">
-                <h4>✅ Work Completed</h4>
-                <p>We made a github pages domain for our final website, we settled on two majors and two minors to execute our application for the group project with, we reached out to CaTS to acquire the information needed to start drafting some CVs with all the information that will eventually comprise our database, and some work was begun on our SR document</p>
-            </div>
-            <div class="report-card">
-                <h4>📋 Work Planned</h4>
-                <p>Continue to acquire any knowledge we can about the project before the 11th, fully develop CV's, discuss and develop our Requirements presentation, begin webbing entities for database design</p>
-            </div>
-            <div class="report-card">
-                <h4>👥 Members Present</h4>
-                <p>Aiden, Luke, Evan, Samantha</p>
-            </div>
-            <div class="report-card">
-                <h4>⏰ Meeting Hours</h4>
-                <p><strong>1.5 hours</strong></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Week 3 -->
-    <div class="week-report">
-        <h3>Week 3 - Week of Monday 9/8/2025 </h3>
-        <div class="report-grid">
-            <div class="report-card">
-                <h4>✅ Work Completed</h4>
-                <p>We created a csv file including the fields and entities that will be mapped in our database; in doing so we had to re-evaluate our curriculum chosen; chipped away at our SRS document; merged pull requests/setup team repos</p>
-            </div>
-            <div class="report-card">
-                <h4>📋 Work Planned</h4>
-                <p>Drafting/webbing out an entity relationship diagram for our database; database design language/initializing the database; setting up CRUD scaffolding for the database</p>
-            </div>
-            <div class="report-card">
-                <h4>👥 Members Present</h4>
-                <p>Aiden, Luke, Evan, Samantha</p>
-            </div>
-            <div class="report-card">
-                <h4>⏰ Meeting Hours</h4>
-                <p><strong>3 hours</strong></p>
-            </div>
-        </div>
-    </div>    
-
-        <!-- Week 4 -->
-        <div class="week-report">
-            <h3>Week 4 - Week of Monday 9/15/2025 </h3>
-            <div class="report-grid">
-                <div class="report-card">
-                    <h4>✅ Work Completed</h4>
-                    <p>We updated the front end, managed deliverables such as class data that were due 9/18, composed an entity relationship diagram for our database which the back end logic will be built on. </p>
-                </div>
-                <div class="report-card">
-                    <h4>📋 Work Planned</h4>
-                    <p>The database will be built next week so all data design language and constraints will be written, front end design will also be on the table as mid-October is when it needs to be demoed for Sean. Set Samantha on front-end, Evan on backend, Aiden on the website / backend, and Luke on back-end help / research.</p>
-                </div>
-                <div class="report-card">
-                    <h4>👥 Members Present</h4>
-                    <p>Aiden, Luke, Evan, Samantha</p>
-                </div>
-                <div class="report-card">
-                    <h4>⏰ Meeting Hours</h4>
-                    <p><strong> 2 hours</strong></p>
-                </div>
-            </div>
-        </div>    
-    
-        <!-- Week 5 -->
-        <div class="week-report">
-            <h3>Week 5 - Week of Monday 9/22/2025 </h3>
-            <div class="report-grid">
-                <div class="report-card">
-                    <h4>✅ Work Completed</h4>
-                    <p>We completed an entity relationship diagram for our database, met and heavily discussed the design and future implementation of our faculty approval mechanism for our requirements, we began sourcing the info for individual curriculums, made a lot of visual improvement to our front end</p>
-                </div>
-                <div class="report-card">
-                    <h4>📋 Work Planned</h4>
-                    <p>We will be writing the SQL for our database design, continuing curriculum information gathering to populate the database, continuing to build a front end user interface for the various roles (admin/faculty/student)</p>
-                </div>
-                <div class="report-card">
-                    <h4>👥 Members Present</h4>
-                    <p>Aiden, Luke, Evan, Samantha</p>
-                </div>
-                <div class="report-card">
-                    <h4>⏰ Meeting Hours</h4>
-                    <p><strong>2 hours</strong></p>
-                </div>
-            </div>
-        </div>  
-
-        <!-- Week 6 -->
-        <div class="week-report">
-            <h3>Week 6 - Week of Monday 9/29/2025 </h3>
-            <div class="report-grid">
-                <div class="report-card">
-                    <h4>✅ Work Completed</h4>
-                    <p>The team has made solid progress on the database and curriculum development. Evan completed and deployed the DDL scripts on Sept 29, using ENUM types instead of lookup tables to keep things simple for the MVP. Luke developed the curriculum content format in Markdown, which the team approved. During a feedback session on Sept 30, Aiden and Evan attended and learned they could remove Testing template #7. Aiden is handling the team report submission while Samantha has been working and making huge strides on the front-end.</p>
-                </div>
-                <div class="report-card">
-                    <h4>📋 Work Planned</h4>
-                    <p>For next week, the team will focus on preparing for fall break by conducting thorough code reviews of all completed work, including the database implementation, frontend components, and curriculum content integration. This will involve testing the system end-to-end to identify and address any critical bugs before the break. The goal is to reach a stable stopping point where core functionality is working and documented, so team members can step away without worrying about the project. Additionally, the team will meet to plan priorities for when everyone returns from break, ensuring a smooth transition back into development and setting clear goals for the next sprint toward MVP completion.</p>
-                </div>
-                <div class="report-card">
-                    <h4>👥 Members Present</h4>
-                    <p>Aiden, Luke, Evan, Samantha</p>
-                </div>
-                <div class="report-card">
-                    <h4>⏰ Meeting Hours</h4>
-                    <p><strong>3 hours</strong></p>
-                </div>
-            </div>
-        </div>  
-
-                <!-- Week 7 -->
-                <div class="week-report">
-                    <h3>Week 7 - Week of Monday 10/6/2025 </h3>
-                    <div class="report-grid">
-                        <div class="report-card">
-                            <h4>✅ Work Completed</h4>
-                            <p>This week because of fall break we decided we were at a good point to check in with the team. We took the time to look at the other teammates work. Samantha also in the back end of the week put in huge strides to clean up the front end and give a presentation on the 16th. </p>
+            <!-- Weekly Reports Section -->
+            <section id="reports" class="section">
+                <h2>📊 Weekly Team Reports <span class="status-badge coming-soon">Coming Soon</span></h2>
+                
+                <div class="carousel-container">
+                    <button class="carousel-btn prev" onclick="changeWeek(-1)">‹</button>
+                    
+                    <div class="carousel-content">
+                        <!-- Week 1 -->
+                        <div class="week-report active">
+                            <h3>Week 1 - Week of Monday 8/25/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>We came up with our team name, created back-end and front-end repos as well as deliberated on what our tech stack is to be. Tentatively we are doing the front-end in React and the back-end will be Java/Spring Boot/MySQL. We also submitted a list of questions to the project-qa slack chat as requested. We had our first virtual meeting on Thursday 8/29 and plan to meet again next Wednesday the 3rd.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>Next week we plan on getting more clerical work done, setting up documentation, possibly even getting into some code/scaffolding that can easily be done. We aren't 100% on our back-end tech stack but I could at the least start drafting some DDL</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>1 hour</strong></p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="report-card">
-                            <h4>📋 Work Planned</h4>
-                            <p>Demo day is this week. We plan to tidy up the rest of the front-end to give a presentable demonstration of our project this far. Looking ahead, we plan to also clean up the back end and link the two together. </p>
+
+                        <!-- Week 2 -->
+                        <div class="week-report">
+                            <h3>Week 2 - Week of Monday 9/1/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>We made a github pages domain for our final website, we settled on two majors and two minors to execute our application for the group project with, we reached out to CaTS to acquire the information needed to start drafting some CVs with all the information that will eventually comprise our database, and some work was begun on our SR document</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>Continue to acquire any knowledge we can about the project before the 11th, fully develop CV's, discuss and develop our Requirements presentation, begin webbing entities for database design</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>1.5 hours</strong></p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="report-card">
-                            <h4>👥 Members Present</h4>
-                            <p>Aiden, Luke, Evan, Samantha</p>
+
+                        <!-- Week 3 -->
+                        <div class="week-report">
+                            <h3>Week 3 - Week of Monday 9/8/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>We created a csv file including the fields and entities that will be mapped in our database; in doing so we had to re-evaluate our curriculum chosen; chipped away at our SRS document; merged pull requests/setup team repos</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>Drafting/webbing out an entity relationship diagram for our database; database design language/initializing the database; setting up CRUD scaffolding for the database</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>3 hours</strong></p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="report-card">
-                            <h4>⏰ Meeting Hours</h4>
-                            <p><strong>1 hour</strong></p>
+
+                        <!-- Week 4 -->
+                        <div class="week-report">
+                            <h3>Week 4 - Week of Monday 9/15/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>We updated the front end, managed deliverables such as class data that were due 9/18, composed an entity relationship diagram for our database which the back end logic will be built on.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>The database will be built next week so all data design language and constraints will be written, front end design will also be on the table as mid-October is when it needs to be demoed for Sean. Set Samantha on front-end, Evan on backend, Aiden on the website / backend, and Luke on back-end help / research.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>2 hours</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Week 5 -->
+                        <div class="week-report">
+                            <h3>Week 5 - Week of Monday 9/22/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>We completed an entity relationship diagram for our database, met and heavily discussed the design and future implementation of our faculty approval mechanism for our requirements, we began sourcing the info for individual curriculums, made a lot of visual improvement to our front end</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>We will be writing the SQL for our database design, continuing curriculum information gathering to populate the database, continuing to build a front end user interface for the various roles (admin/faculty/student)</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>2 hours</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Week 6 -->
+                        <div class="week-report">
+                            <h3>Week 6 - Week of Monday 9/29/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>The team has made solid progress on the database and curriculum development. Evan completed and deployed the DDL scripts on Sept 29, using ENUM types instead of lookup tables to keep things simple for the MVP. Luke developed the curriculum content format in Markdown, which the team approved. During a feedback session on Sept 30, Aiden and Evan attended and learned they could remove Testing template #7. Aiden is handling the team report submission while Samantha has been working and making huge strides on the front-end.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>For next week, the team will focus on preparing for fall break by conducting thorough code reviews of all completed work, including the database implementation, frontend components, and curriculum content integration. This will involve testing the system end-to-end to identify and address any critical bugs before the break. The goal is to reach a stable stopping point where core functionality is working and documented, so team members can step away without worrying about the project. Additionally, the team will meet to plan priorities for when everyone returns from break, ensuring a smooth transition back into development and setting clear goals for the next sprint toward MVP completion.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>3 hours</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Week 7 -->
+                        <div class="week-report">
+                            <h3>Week 7 - Week of Monday 10/6/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>This week because of fall break we decided we were at a good point to check in with the team. We took the time to look at the other teammates work. Samantha also in the back end of the week put in huge strides to clean up the front end and give a presentation on the 16th.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>Demo day is this week. We plan to tidy up the rest of the front-end to give a presentable demonstration of our project this far. Looking ahead, we plan to also clean up the back end and link the two together.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>1 hour</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Week 8 -->
+                        <div class="week-report">
+                            <h3>Week 8 - Week of Monday 10/13/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p>Samantha completed an impressive front-end implementation for the student path. Faculty and admin paths were created as stubs (intentionally minimal since they rely on backend connections).Code was pushed to a feature branch and reviewed by Luke and Aiden. Backend work was initiated - Evan worked on database DDL, and Aiden started exploring backend implementation</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p>Continuing on, the back end will be our main priority. The frontend work is at a great spot moving forward, so implementing and familiarizing ourselves with Spring Boot is the next step. Also looking to create GitHub issues to assign tasks and make sure everyone is on the same page on what is being worked on.</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>2 hours</strong></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Week 9 -->
+                        <div class="week-report">
+                            <h3>Week 9 - Week of Monday 10/20/2025</h3>
+                            <div class="report-grid">
+                                <div class="report-card">
+                                    <h4>✅ Work Completed</h4>
+                                    <p></p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>📋 Work Planned</h4>
+                                    <p></p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>👥 Members Present</h4>
+                                    <p>Aiden, Luke, Evan, Samantha</p>
+                                </div>
+                                <div class="report-card">
+                                    <h4>⏰ Meeting Hours</h4>
+                                    <p><strong>[X] hours</strong></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div> 
-
-                <!-- Week 8 -->
-                <div class="week-report">
-                    <h3>Week 8 - Week of Monday 10/13/2025 </h3>
-                    <div class="report-grid">
-                        <div class="report-card">
-                            <h4>✅ Work Completed</h4>
-                            <p>Samantha completed an impressive front-end implementation for the student path. Faculty and admin paths were created as stubs (intentionally minimal since they rely on backend connections).Code was pushed to a feature branch and reviewed by Luke and Aiden. Backend work was initiated - Evan worked on database DDL, and Aiden started exploring backend implementation</p>
-                        </div>
-                        <div class="report-card">
-                            <h4>📋 Work Planned</h4>
-                            <p>Continuing on, the back end will be our main priority. The frontend work is at a great spot moving forward, so implementing and familiarizing ourselves with Spring Boot is the next step. Also looking to create GitHub issues to assign tasks and make sure everyone is on the same page on what is being worked on.</p>
-                        </div>
-                        <div class="report-card">
-                            <h4>👥 Members Present</h4>
-                            <p>Aiden, Luke, Evan, Samantha</p>
-                        </div>
-                        <div class="report-card">
-                            <h4>⏰ Meeting Hours</h4>
-                            <p>2<strong>[X] hours</strong></p>
-                        </div>
-                    </div>
-                </div> 
-
-                <!-- Week 9 -->
-                <div class="week-report">
-                    <h3>Week 9 - Week of Monday 10/20/2025 </h3>
-                    <div class="report-grid">
-                        <div class="report-card">
-                            <h4>✅ Work Completed</h4>
-                            <p></p>
-                        </div>
-                        <div class="report-card">
-                            <h4>📋 Work Planned</h4>
-                            <p></p>
-                        </div>
-                        <div class="report-card">
-                            <h4>👥 Members Present</h4>
-                            <p>Aiden, Luke, Evan, Samantha</p>
-                        </div>
-                        <div class="report-card">
-                            <h4>⏰ Meeting Hours</h4>
-                            <p><strong>[X] hours</strong></p>
-                        </div>
-                    </div>
-                </div> 
-    <!-- Add more weeks as needed -->
-</section>
+                    
+                    <button class="carousel-btn next" onclick="changeWeek(1)">›</button>
+                </div>
+                
+                <div class="carousel-indicators"></div>
+            </section>
 
             <!-- Software Requirements Section -->
             <section id="requirements" class="section">
@@ -535,6 +639,56 @@
     </footer>
 
     <script>
+        // Carousel functionality
+        let currentWeek = 0;
+        const weeks = document.querySelectorAll('.week-report');
+        const totalWeeks = weeks.length;
+
+        function initCarousel() {
+            const indicatorsContainer = document.querySelector('.carousel-indicators');
+            for (let i = 0; i < totalWeeks; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator';
+                if (i === 0) indicator.classList.add('active');
+                indicator.onclick = () => goToWeek(i);
+                indicatorsContainer.appendChild(indicator);
+            }
+        }
+
+        function updateCarousel() {
+            weeks.forEach((week, index) => {
+                week.classList.remove('active');
+                if (index === currentWeek) {
+                    week.classList.add('active');
+                }
+            });
+
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((indicator, index) => {
+                indicator.classList.remove('active');
+                if (index === currentWeek) {
+                    indicator.classList.add('active');
+                }
+            });
+        }
+
+        function changeWeek(direction) {
+            currentWeek += direction;
+            if (currentWeek < 0) {
+                currentWeek = totalWeeks - 1;
+            } else if (currentWeek >= totalWeeks) {
+                currentWeek = 0;
+            }
+            updateCarousel();
+        }
+
+        function goToWeek(weekIndex) {
+            currentWeek = weekIndex;
+            updateCarousel();
+        }
+
+        document.addEventListener('DOMContentLoaded', initCarousel);
+
         // Smooth scrolling for navigation links
         document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
