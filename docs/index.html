@@ -81,6 +81,29 @@
         main {
             padding: 3rem 0;
         }
+                .member-avatar {
+            width: 120px;
+            height: 120px;
+            background: #667eea;
+            border-radius: 50%;
+            margin: 0 auto 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            overflow: hidden; /* 👈 This is critical */
+            border: 4px solid #f8f9fa;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 👈 Ensures the image fills the circle properly */
+            border-radius: 50%; /* Optional safeguard */
+        }
 
         .section {
             background: white;
@@ -388,49 +411,186 @@
             <!-- Project Overview Section -->
             <section id="overview" class="section">
                 <h2>📋 Project Overview</h2>
-                <div class="placeholder">
-                    <p><strong>Project description and objectives will be added here.</strong></p>
-                    <p>This section will contain a comprehensive overview of the project, including goals, scope, and key deliverables.</p>
+                
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                    <h3 style="color: white; font-size: 1.5rem; margin-bottom: 1rem;">DegreeAdmin</h3>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">
+                        A comprehensive degree planning system that enables students to select multiple majors and minors, 
+                        visualize their academic pathway, and determine if they can complete their degree requirements within 
+                        their desired timeframe. The system facilitates collaboration between students, faculty advisors, and 
+                        administrators to create optimized academic schedules.
+                    </p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <h4 style="color: #667eea; margin-bottom: 0.5rem;">👨‍🎓 For Students</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin: 0.5rem 0;">✓ Select dual majors and multiple minors</li>
+                            <li style="margin: 0.5rem 0;">✓ Create semester and year-long schedules</li>
+                            <li style="margin: 0.5rem 0;">✓ Request co-op approvals</li>
+                            <li style="margin: 0.5rem 0;">✓ View required courses and prerequisites</li>
+                            <li style="margin: 0.5rem 0;">✓ Evaluate graduation timeline feasibility</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #764ba2;">
+                        <h4 style="color: #764ba2; margin-bottom: 0.5rem;">👨‍🏫 For Faculty</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin: 0.5rem 0;">✓ Approve major and minor selections</li>
+                            <li style="margin: 0.5rem 0;">✓ Provide schedule amendments</li>
+                            <li style="margin: 0.5rem 0;">✓ Approve or deny co-op requests</li>
+                            <li style="margin: 0.5rem 0;">✓ Modify course requirements</li>
+                            <li style="margin: 0.5rem 0;">✓ Guide students on degree completion</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #28a745;">
+                        <h4 style="color: #28a745; margin-bottom: 0.5rem;">⚙️ For Administrators</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin: 0.5rem 0;">✓ Assign students to faculty advisors</li>
+                            <li style="margin: 0.5rem 0;">✓ Manage student-advisor relationships</li>
+                            <li style="margin: 0.5rem 0;">✓ Remove user accounts</li>
+                            <li style="margin: 0.5rem 0;">✓ Update credentials</li>
+                            <li style="margin: 0.5rem 0;">✓ Oversee system operations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 style="color: #667eea; font-size: 1.4rem; margin-bottom: 1rem;">🎯 Key Features</h3>
+                
+                <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: #555; margin-bottom: 1rem;">Academic Planning</h4>
+                    <p>Students can select from a minimum of 2 majors (Economics, Business, Entrepreneurship, Marketing) and 2 minors, with the system automatically calculating prerequisite courses, identifying which faculty teach each course, and determining course offering schedules. The intelligent planning engine helps students visualize if they can complete all requirements within their target graduation date.</p>
+                </div>
+
+                <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: #555; margin-bottom: 1rem;">Secure Authentication</h4>
+                    <p>All users authenticate with secure credentials:</p>
+                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        <li><strong>Usernames:</strong> 8 characters, lowercase only</li>
+                        <li><strong>Passwords:</strong> 12 characters with at least 1 uppercase, 1 lowercase, 1 numeric, and 1 symbol</li>
+                    </ul>
+                </div>
+
+                <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: #555; margin-bottom: 1rem;">Role-Based Access</h4>
+                    <p>The system provides tailored interfaces for each user type after authentication, ensuring students, faculty, and administrators see only the tools and information relevant to their role.</p>
+                </div>
+
+                <h3 style="color: #667eea; font-size: 1.4rem; margin-bottom: 1rem;">📊 System Scope</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="background: #e8eaf6; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: bold; color: #667eea;">5</div>
+                        <div style="color: #555; margin-top: 0.5rem;">Student Accounts</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">Various major/minor combinations</div>
+                    </div>
+                    
+                    <div style="background: #f3e5f5; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: bold; color: #764ba2;">2</div>
+                        <div style="color: #555; margin-top: 0.5rem;">Faculty Advisors</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">Advising multiple students</div>
+                    </div>
+                    
+                    <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: bold; color: #28a745;">2</div>
+                        <div style="color: #555; margin-top: 0.5rem;">System Administrators</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">Managing system operations</div>
+                    </div>
+                    
+                    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: bold; color: #ff9800;">5</div>
+                        <div style="color: #555; margin-top: 0.5rem;">Degree Programs</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">2 majors, 2 minors minimum</div>
+                    </div>
+                </div>
+
+                <h3 style="color: #667eea; font-size: 1.4rem; margin: 2rem 0 1rem 0;">🛠️ Technology Stack</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-top: 3px solid #61dafb;">
+                        <h4 style="color: #61dafb; margin-bottom: 0.5rem;">Frontend</h4>
+                        <p style="margin: 0;">React for responsive, dynamic user interfaces</p>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-top: 3px solid #6db33f;">
+                        <h4 style="color: #6db33f; margin-bottom: 0.5rem;">Backend</h4>
+                        <p style="margin: 0;">Java with Spring Boot framework for robust API development</p>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-top: 3px solid #003545;">
+                        <h4 style="color: #003545; margin-bottom: 0.5rem;">Database</h4>
+                        <p style="margin: 0;">MariaDB with Docker containerization for data persistence</p>
+                    </div>
                 </div>
             </section>
 
-            <!-- Team Members Section -->
             <section id="team" class="section">
                 <h2>👥 Team Members</h2>
                 <div class="team-grid">
+                    
+                    <!-- Aiden Cox -->
                     <div class="team-member">
-                        <div class="member-avatar">TM</div>
+                        <div class="member-avatar">
+                            <img src="images/aiden.png" alt="Aiden Cox" onerror="this.style.display='none'; this.parentElement.innerHTML='AC';">
+                        </div>
                         <h3>Aiden Cox</h3>
-                        <p>Role: TBD</p>
+                        <p class="member-role">🎯 Project Manager & Website Manager</p>
                         <p>Email: <a href="mailto:cox.378@wright.edu">cox.378@wright.edu</a></p>
+                        <div class="member-expertise">
+                            <h4>Expertise & Contributions</h4>
+                            <p>Aiden leads project coordination and maintains team communication. He manages the project website, tracks deliverables, and ensures alignment with course requirements. Throughout the project, Aiden has handled documentation, GitHub issue tracking, requirement submissions, and facilitated weekly team meetings to keep the project on schedule.</p>
+                        </div>
                     </div>
+            
+                    <!-- Luke Dawson -->
                     <div class="team-member">
-                        <div class="member-avatar">TM</div>
+                        <div class="member-avatar">
+                            <img src="path/to/luke.jpg" alt="Luke Dawson" onerror="this.style.display='none'; this.parentElement.innerHTML='LD';">
+                        </div>
                         <h3>Luke Dawson</h3>
-                        <p>Role: TBD</p>
+                        <p class="member-role">🧠 Algorithm Designer & Documentation Lead</p>
                         <p>Email: <a href="mailto:dawson.118@wright.edu">dawson.118@wright.edu</a></p>
+                        <div class="member-expertise">
+                            <h4>Expertise & Contributions</h4>
+                            <p>Luke specializes in curriculum algorithm design and data structure planning. He developed the comprehensive curriculum content format, created detailed CSV files for all degree path combinations (Economics, Business, Entrepreneurship, Marketing), and refined data structures to ensure accuracy. His work ensures the system can properly handle prerequisites and course groupings.</p>
+                        </div>
                     </div>
+            
+                    <!-- Evan Timmons -->
                     <div class="team-member">
-                        <div class="member-avatar">TM</div>
+                        <div class="member-avatar">
+                            <img src="path/to/evan.jpg" alt="Evan Timmons" onerror="this.style.display='none'; this.parentElement.innerHTML='ET';">
+                        </div>
                         <h3>Evan Timmons</h3>
-                        <p>Role: Backend</p>
+                        <p class="member-role">⚙️ Backend Developer & Database Administrator</p>
                         <p>Email: <a href="mailto:timmons.36@wright.edu">timmons.36@wright.edu</a></p>
+                        <div class="member-expertise">
+                            <h4>Expertise & Contributions</h4>
+                            <p>Evan architected and implemented the complete backend infrastructure using Java/Spring Boot. He designed the entity-relationship diagram, wrote DDL scripts, containerized the database with Docker and MariaDB, and developed model classes with proper JPA annotations. Evan created functional REST API endpoints and integrated curriculum data into the database schema.</p>
+                        </div>
                     </div>
+            
+                    <!-- Samantha Barnum -->
                     <div class="team-member">
-                        <div class="member-avatar">TM</div>
+                        <div class="member-avatar">
+                            <img src="path/to/samantha.jpg" alt="Samantha Barnum" onerror="this.style.display='none'; this.parentElement.innerHTML='SB';">
+                        </div>
                         <h3>Samantha Barnum</h3>
-                        <p>Role: Frontend</p>
+                        <p class="member-role">🎨 Frontend Developer & Testing Specialist</p>
                         <p>Email: <a href="mailto:barnum.9@wright.edu">barnum.9@wright.edu</a></p>
+                        <div class="member-expertise">
+                            <h4>Expertise & Contributions</h4>
+                            <p>Samantha designed and implemented the user interface using React, creating an intuitive student path experience. She developed responsive components, managed state effectively, and ensured the frontend provides a smooth user experience. Samantha also authored the software test plan, defining test strategies, scenarios, and acceptance criteria for quality assurance.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="placeholder" style="margin-top: 2rem;">
-                    <p>Detailed team member information and responsibilities will be added by finals week.</p>
                 </div>
             </section>
 
             <!-- Weekly Reports Section -->
             <section id="reports" class="section">
-                <h2>📊 Weekly Team Reports <span class="status-badge coming-soon">Coming Soon</span></h2>
+                <h2>📊 Weekly Team Reports </h2>
                 
                 <div class="carousel-container">
                     <button class="carousel-btn prev" onclick="changeWeek(-1)">‹</button>
