@@ -1,23 +1,21 @@
 /**
  * api.js
  *
- * Updated to connect to backend API instead of using localStorage/sessionStorage
+ * Simple API layer for auth and student data
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
-
-// Store auth token in sessionStorage (still cleared on browser close)
-const AUTH_TOKEN_KEY = "degreeadmin:token";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3309/api";
+const USER_KEY = "degreeadmin:user";
 
 /* ========== AUTHENTICATION ========== */
 
 /**
  * Gets the currently logged-in user from session
- * @returns {Object|null} User object { userId, username, email } or null
+ * @returns {Object|null} User object or null
  */
 export function getCurrentUser() {
-  const user = sessionStorage.getItem(AUTH_TOKEN_KEY);
-  return user ? JSON.parse(user) : null;
+  const raw = sessionStorage.getItem(USER_KEY);
+  return raw ? JSON.parse(raw) : null;
 }
 
 /**
@@ -35,11 +33,13 @@ export async function login(username, password) {
     });
 
     if (!res.ok) {
-      throw new Error(`Login failed: ${res.statusText}`);
+      const error = await res.json();
+      throw new Error(error.error || "Login failed");
     }
 
     const data = await res.json();
-    sessionStorage.setItem(AUTH_TOKEN_KEY, data.token);
+    // Store user in session
+    sessionStorage.setItem(USER_KEY, JSON.stringify(data.user));
     return data.user;
   } catch (err) {
     console.error("Login error:", err);
@@ -48,33 +48,22 @@ export async function login(username, password) {
 }
 
 /**
- * Clear user session
+ * Logout - clear session
  */
 export function logout() {
-  sessionStorage.removeItem(AUTH_TOKEN_KEY);
-}
-
-/**
- * Get auth token for API requests
- * @private
- */
-function getAuthHeader() {
-  const token = sessionStorage.getItem(AUTH_TOKEN_KEY);
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  sessionStorage.removeItem(USER_KEY);
 }
 
 /* ========== STUDENT SCHEDULE/PLAN ========== */
 
 /**
  * Get student's degree plan
- * @param {number|string} studentId - Student ID
- * @returns {Promise<Object>} Degree plan with courses
+ * @param {number} studentId
+ * @returns {Promise<Array>} List of courses in plan
  */
 export async function getStudentPlan(studentId) {
   try {
-    const res = await fetch(`${API_BASE_URL}/students/${studentId}/plan`, {
-      headers: getAuthHeader(),
-    });
+    const res = await fetch(`${API_BASE_URL}/students/${studentId}/plan`);
 
     if (!res.ok) throw new Error("Failed to fetch plan");
     return await res.json();
@@ -84,132 +73,43 @@ export async function getStudentPlan(studentId) {
   }
 }
 
-/**
- * Update a course in student's plan
- * @param {number|string} studentId
- * @param {number|string} courseId
- * @param {Object} updates - { semester, notes, etc }
- * @returns {Promise<Object>} Updated course
- */
-export async function updateCourseInPlan(studentId, courseId, updates) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/students/${studentId}/plan/${courseId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeader(),
-      },
-      body: JSON.stringify(updates),
-    });
+/* ========== NOTIFICATIONS (Backward Compatible) ========== */
 
-    if (!res.ok) throw new Error("Failed to update course");
-    return await res.json();
-  } catch (err) {
-    console.error("Error updating course:", err);
-    throw err;
-  }
+/**
+ * Get notifications for current user (old signature for compatibility)
+ * @param {Object} user - User object
+ * @returns {Array} Array of notification objects
+ */
+export function getNotificationsFor(user) {
+  // For now, return empty array - will implement backend later
+  return [];
 }
 
 /**
- * Add a course to student's plan
- * @param {number|string} studentId
- * @param {number|string} courseId
- * @param {Object} details - { semester, notes, etc }
- * @returns {Promise<Object>} Added course
+ * Save notifications for a user (old signature for compatibility)
+ * @param {Object} user - User object
+ * @param {Array} items - Array of notification objects
  */
-export async function addCourseToPlan(studentId, courseId, details) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/students/${studentId}/plan`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...getAuthHeader(),
-      },
-      body: JSON.stringify({ courseId, ...details }),
-    });
-
-    if (!res.ok) throw new Error("Failed to add course");
-    return await res.json();
-  } catch (err) {
-    console.error("Error adding course:", err);
-    throw err;
-  }
+export function setNotificationsFor(user, items) {
+  // Placeholder - will implement backend later
+  console.log("setNotificationsFor called (not yet implemented)");
 }
 
 /**
- * Remove a course from student's plan
- * @param {number|string} studentId
- * @param {number|string} courseId
- * @returns {Promise<void>}
+ * Mark all notifications as read (old signature for compatibility)
+ * @param {Object} user - User object
  */
-export async function removeCoursFromPlan(studentId, courseId) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/students/${studentId}/plan/${courseId}`, {
-      method: "DELETE",
-      headers: getAuthHeader(),
-    });
-
-    if (!res.ok) throw new Error("Failed to remove course");
-  } catch (err) {
-    console.error("Error removing course:", err);
-    throw err;
-  }
-}
-
-/* ========== NOTIFICATIONS ========== */
-
-/**
- * Get notifications for current user
- * @returns {Promise<Array>} Array of notification objects
- */
-export async function getNotifications() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/notifications`, {
-      headers: getAuthHeader(),
-    });
-
-    if (!res.ok) throw new Error("Failed to fetch notifications");
-    return await res.json();
-  } catch (err) {
-    console.error("Error fetching notifications:", err);
-    return [];
-  }
+export function markAllReadFor(user) {
+  // Placeholder - will implement backend later
+  console.log("markAllReadFor called (not yet implemented)");
 }
 
 /**
- * Mark notification as read
- * @param {number|string} notifId
- * @returns {Promise<Object>}
+ * Mark a single notification as read (old signature for compatibility)
+ * @param {Object} user - User object
+ * @param {number} id - Notification ID
  */
-export async function markNotificationRead(notifId) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/notifications/${notifId}/read`, {
-      method: "PATCH",
-      headers: getAuthHeader(),
-    });
-
-    if (!res.ok) throw new Error("Failed to mark read");
-    return await res.json();
-  } catch (err) {
-    console.error("Error marking notification read:", err);
-    throw err;
-  }
-}
-
-/**
- * Mark all notifications as read
- * @returns {Promise<void>}
- */
-export async function markAllNotificationsRead() {
-  try {
-    const res = await fetch(`${API_BASE_URL}/notifications/read-all`, {
-      method: "PATCH",
-      headers: getAuthHeader(),
-    });
-
-    if (!res.ok) throw new Error("Failed to mark all read");
-  } catch (err) {
-    console.error("Error marking all read:", err);
-    throw err;
-  }
+export function markReadFor(user, id) {
+  // Placeholder - will implement backend later
+  console.log("markReadFor called (not yet implemented)");
 }
