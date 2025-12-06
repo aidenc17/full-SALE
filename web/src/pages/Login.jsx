@@ -56,7 +56,7 @@ export default function Login() {
     // Validate password
     if (!isValidPassword(password)) {
       setError(
-        "Password needs to be exactly 12 characters and have 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol.."
+        "Password must be 8-40 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol."
       );
       return;
     }
@@ -70,7 +70,7 @@ export default function Login() {
       const destination = state?.from?.pathname || `/${user.role}`;
       navigate(destination, { replace: true });
     } catch (err) {
-      setError("Somehow, you broke this.  Congrats.");
+      setError("You aren't in our system. Please contact CATS for help.");
     } finally {
       setLoading(false);
     }
