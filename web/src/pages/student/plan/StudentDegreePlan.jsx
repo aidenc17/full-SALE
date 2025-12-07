@@ -70,28 +70,37 @@ export default function StudentDegreePlan() {
       // Get student ID from user (assuming it's stored in user object)
       const studentId = user.userId; // Adjust if your user object has different structure
 
-      // Build request body
-      const requestBody = {
-        degreeSpecialties: validSelections.map(d => ({
+      // Determine endpoint and body based on number of selections
+      let endpoint, requestBody;
+      
+      if (validSelections.length === 1) {
+        // Single degree - send just the degree object
+        endpoint = `${API_BASE_URL}/students/${studentId}/plan`;
+        requestBody = {
           studentId: studentId,
-          degreeFieldOfStudyId: parseInt(d.degreeFieldOfStudyId),
-          majorMinor: d.majorMinor
-        }))
-      };
+          degreeFieldOfStudyId: parseInt(validSelections[0].degreeFieldOfStudyId),
+          majorMinor: validSelections[0].majorMinor
+        };
+      } else {
+        // Multiple degrees - send degreeSpecialties array
+        endpoint = `${API_BASE_URL}/students/${studentId}/plan/multiple`;
+        requestBody = {
+          degreeSpecialties: validSelections.map(d => ({
+            studentId: studentId,
+            degreeFieldOfStudyId: parseInt(d.degreeFieldOfStudyId),
+            majorMinor: d.majorMinor
+          }))
+        };
+      }
 
       console.log("Generating schedule with:", requestBody);
-
-      // Determine endpoint based on number of selections
-      const endpoint = validSelections.length === 1
-        ? `${API_BASE_URL}/students/${studentId}/plan`
-        : `${API_BASE_URL}/students/${studentId}/plan/multiple`;
 
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(validSelections.length === 1 ? validSelections[0] : requestBody)
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -110,11 +119,14 @@ export default function StudentDegreePlan() {
     }
   };
 
-  // Fetch existing schedule on load
+  // Fetch existing schedule on load (only once)
   useEffect(() => {
     const fetchSchedule = async () => {
+      if (!user?.userId) return;
+      
       try {
-        const studentId = user.userId;
+        // IMPORTANT: Convert User_Id to Student_Id (Student_Id = User_Id + 2)
+        const studentId = user.userId + 2;
         const response = await fetch(`${API_BASE_URL}/students/${studentId}/plan`);
         
         if (response.ok) {
@@ -128,10 +140,9 @@ export default function StudentDegreePlan() {
       }
     };
 
-    if (user?.userId) {
-      fetchSchedule();
-    }
-  }, [user]);
+    fetchSchedule();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   return (
     <div className="page-content">
