@@ -73,11 +73,13 @@ export default function StudentDegreePlan() {
       // Determine endpoint and body based on number of selections
       let endpoint, requestBody;
       
+      console.log("Using Student ID:", studentId, "(User ID:", user.userId, "+ 2)");
+      
       if (validSelections.length === 1) {
         // Single degree - send just the degree object
         endpoint = `${API_BASE_URL}/students/${studentId}/plan`;
         requestBody = {
-          studentId: studentId,
+          studentId: studentId,  // This is now the correct Student_Id (User_Id + 2)
           degreeFieldOfStudyId: parseInt(validSelections[0].degreeFieldOfStudyId),
           majorMinor: validSelections[0].majorMinor
         };
@@ -86,7 +88,7 @@ export default function StudentDegreePlan() {
         endpoint = `${API_BASE_URL}/students/${studentId}/plan/multiple`;
         requestBody = {
           degreeSpecialties: validSelections.map(d => ({
-            studentId: studentId,
+            studentId: studentId,  // This is now the correct Student_Id (User_Id + 2)
             degreeFieldOfStudyId: parseInt(d.degreeFieldOfStudyId),
             majorMinor: d.majorMinor
           }))
