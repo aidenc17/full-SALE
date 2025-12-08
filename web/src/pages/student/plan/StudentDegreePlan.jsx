@@ -104,6 +104,8 @@ export default function StudentDegreePlan() {
       }
 
       const data = await response.json();
+      console.log("Raw response data length:", data.length);  // debug 19 course issue
+      console.log("Raw response data:", data);
       setSchedule(data);
       console.log("Schedule generated:", data);
     } catch (err) {
