@@ -4,7 +4,7 @@
  * Simple API layer for auth and student data
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3309/api";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 const USER_KEY = "degreeadmin:user";
 
 /* ========== AUTHENTICATION ========== */
@@ -38,8 +38,10 @@ export async function login(username, password) {
     }
 
     const data = await res.json();
+
     // Store user in session
     sessionStorage.setItem(USER_KEY, JSON.stringify(data.user));
+
     return data.user;
   } catch (err) {
     console.error("Login error:", err);
@@ -64,7 +66,6 @@ export function logout() {
 export async function getStudentPlan(studentId) {
   try {
     const res = await fetch(`${API_BASE_URL}/students/${studentId}/plan`);
-
     if (!res.ok) throw new Error("Failed to fetch plan");
     return await res.json();
   } catch (err) {
@@ -73,43 +74,103 @@ export async function getStudentPlan(studentId) {
   }
 }
 
-/* ========== NOTIFICATIONS (Backward Compatible) ========== */
+/* ========== NOTIFICATIONS ========== */
 
 /**
- * Get notifications for current user (old signature for compatibility)
+ * Get the localStorage key for a user's notifications
+ * @private
+ */
+function getNotificationKey(user) {
+  return `degreeadmin:notifications:${user.username}`;
+}
+
+/**
+ * Get notifications for current user
  * @param {Object} user - User object
  * @returns {Array} Array of notification objects
  */
 export function getNotificationsFor(user) {
-  // For now, return empty array - will implement backend later
-  return [];
+  if (!user) return [];
+  
+  const key = getNotificationKey(user);
+  const raw = localStorage.getItem(key);
+  
+  return raw ? JSON.parse(raw) : [];
 }
 
 /**
- * Save notifications for a user (old signature for compatibility)
+ * Save notifications for a user
  * @param {Object} user - User object
  * @param {Array} items - Array of notification objects
  */
 export function setNotificationsFor(user, items) {
-  // Placeholder - will implement backend later
-  console.log("setNotificationsFor called (not yet implemented)");
+  if (!user) return;
+  
+  const key = getNotificationKey(user);
+  localStorage.setItem(key, JSON.stringify(items || []));
 }
 
 /**
- * Mark all notifications as read (old signature for compatibility)
+ * Mark all notifications as read
  * @param {Object} user - User object
  */
 export function markAllReadFor(user) {
-  // Placeholder - will implement backend later
-  console.log("markAllReadFor called (not yet implemented)");
+  if (!user) return;
+  
+  const notifications = getNotificationsFor(user);
+  const updated = notifications.map(n => ({ ...n, unread: false }));
+  setNotificationsFor(user, updated);
 }
 
 /**
- * Mark a single notification as read (old signature for compatibility)
+ * Mark a single notification as read
  * @param {Object} user - User object
  * @param {number} id - Notification ID
  */
 export function markReadFor(user, id) {
-  // Placeholder - will implement backend later
-  console.log("markReadFor called (not yet implemented)");
+  if (!user) return;
+  
+  const notifications = getNotificationsFor(user);
+  const updated = notifications.map(n => 
+    n.id === id ? { ...n, unread: false } : n
+  );
+  setNotificationsFor(user, updated);
+}
+
+/**
+ * Add a new notification for a user
+ * @param {Object} user - User object
+ * @param {string} title - Notification title
+ * @param {string} message - Notification message
+ * @param {string} type - Notification type ('success', 'info', 'warning', 'error')
+ * @param {string} category - Notification category (e.g., 'Academic', 'Administrative')
+ */
+export function addNotification(user, title, message, type = "info", category = "Academic") {
+  if (!user) return;
+  
+  const notifications = getNotificationsFor(user);
+  
+  const newNotification = {
+    id: Date.now(),
+    title,
+    message,
+    type,
+    unread: true,
+    timestamp: new Date().toISOString(),
+    category
+  };
+  
+  // Add to beginning (newest first)
+  const updated = [newNotification, ...notifications];
+  
+  // Keep only the 5 most recent notifications
+  const limited = updated.slice(0, 5);
+  
+  setNotificationsFor(user, limited);
+  
+  // Trigger both storage event and custom notification event
+  window.dispatchEvent(new Event("storage"));
+  window.dispatchEvent(new CustomEvent("notificationAdded", { detail: newNotification }));
+  
+  return newNotification;
 }

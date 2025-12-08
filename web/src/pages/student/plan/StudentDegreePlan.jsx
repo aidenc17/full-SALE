@@ -2,11 +2,12 @@
  * StudentDegreePlan.jsx
  * 
  * Allows students to generate and view their degree plan/schedule
+ * with semester-by-semester navigation and notifications
  */
 
 import { useState, useEffect } from "react";
-import { getCurrentUser } from "../../../api";
-import { BookOpen, Calendar, Plus, Trash2 } from "lucide-react";
+import { getCurrentUser, addNotification } from "../../../api";
+import { BookOpen, Calendar, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
@@ -31,6 +32,11 @@ export default function StudentDegreePlan() {
   const [loading, setLoading] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState("");
+  const [currentSemesterIndex, setCurrentSemesterIndex] = useState(0);
+
+  // Group schedule by semester
+  const groupedSchedule = schedule ? groupBySemester(schedule) : null;
+  const semesterKeys = groupedSchedule ? Object.keys(groupedSchedule) : [];
 
   // Add a new degree selection
   const addDegreeSelection = () => {
@@ -56,9 +62,6 @@ export default function StudentDegreePlan() {
 
   // Generate schedule
   const handleGenerateSchedule = async () => {
-    console.log("=== GENERATE SCHEDULE STARTED ===");
-    console.log("Loading state:", loading);
-    
     if (loading) {
       console.log("Already generating, ignoring click");
       return;
@@ -66,22 +69,18 @@ export default function StudentDegreePlan() {
     
     setError("");
     setLoading(true);
-  
+
     const validSelections = selectedDegrees.filter(d => d.degreeFieldOfStudyId !== "");
-    console.log("Valid selections:", validSelections);
     
     if (validSelections.length === 0) {
       setError("Please select at least one major or minor");
       setLoading(false);
       return;
     }
-  
+
     try {
       const studentId = user.userId + 2;
       let endpoint, requestBody;
-      
-      console.log("Using Student ID:", studentId);
-      console.log("User object:", user);
       
       if (validSelections.length === 1) {
         endpoint = `${API_BASE_URL}/students/${studentId}/plan`;
@@ -90,7 +89,6 @@ export default function StudentDegreePlan() {
           degreeFieldOfStudyId: parseInt(validSelections[0].degreeFieldOfStudyId),
           majorMinor: validSelections[0].majorMinor
         };
-        console.log("Single degree endpoint:", endpoint);
       } else {
         endpoint = `${API_BASE_URL}/students/${studentId}/plan/multiple`;
         requestBody = {
@@ -100,41 +98,53 @@ export default function StudentDegreePlan() {
             majorMinor: d.majorMinor
           }))
         };
-        console.log("Multiple degree endpoint:", endpoint);
       }
-  
-      console.log("Request body:", requestBody);
-      console.log("About to fetch...");
-  
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
       });
-  
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        console.log("Error data:", errorData);
         throw new Error(errorData.message || "Failed to generate schedule");
       }
-  
+
       const data = await response.json();
-      console.log("Raw response data length:", data.length);
-      console.log("Raw response data:", data);
-      
       setSchedule(data);
-      console.log("Schedule state set with", data.length, "courses");
+      setCurrentSemesterIndex(0);
+      
+      // Add success notification
+      const degreeNames = validSelections.map(d => {
+        const option = d.majorMinor === "MAJ" 
+          ? DEGREE_OPTIONS.majors.find(m => m.id === parseInt(d.degreeFieldOfStudyId))
+          : DEGREE_OPTIONS.minors.find(m => m.id === parseInt(d.degreeFieldOfStudyId));
+        return option?.name;
+      }).filter(Boolean).join(" + ");
+      
+      const semesterCount = Object.keys(groupBySemester(data)).length;
+      
+      addNotification(
+        user,
+        "Schedule Generated Successfully! 🎓",
+        `Your ${degreeNames} schedule has been created with ${data.length} courses across ${semesterCount} semesters.`,
+        "success"
+      );
+      
     } catch (err) {
-      console.error("=== ERROR GENERATING SCHEDULE ===");
-      console.error("Error:", err);
-      console.error("Error message:", err.message);
+      console.error("Error generating schedule:", err);
       setError(err.message || "Failed to generate schedule. Please try again.");
+      
+      // Add error notification
+      addNotification(
+        user,
+        "Schedule Generation Failed",
+        err.message || "We couldn't generate your schedule. Please try again or contact your advisor.",
+        "error"
+      );
     } finally {
       setLoading(false);
-      console.log("=== GENERATE SCHEDULE ENDED ===");
     }
   };
 
@@ -157,13 +167,46 @@ export default function StudentDegreePlan() {
         throw new Error("Failed to clear schedule");
       }
 
+      const oldCourseCount = schedule.length;
       setSchedule(null);
+      setCurrentSemesterIndex(0);
+      
+      // Add success notification
+      addNotification(
+        user,
+        "Schedule Cleared",
+        `Your previous schedule (${oldCourseCount} courses) has been removed. You can generate a new one anytime.`,
+        "info"
+      );
+      
       console.log("Schedule cleared successfully");
     } catch (err) {
       console.error("Error clearing schedule:", err);
       setError("Failed to clear schedule. Please try again.");
+      
+      // Add error notification
+      addNotification(
+        user,
+        "Failed to Clear Schedule",
+        "We couldn't clear your schedule. Please try again or contact support.",
+        "error"
+      );
     } finally {
       setClearing(false);
+    }
+  };
+
+  // Navigate to previous semester
+  const goToPreviousSemester = () => {
+    if (currentSemesterIndex > 0) {
+      setCurrentSemesterIndex(currentSemesterIndex - 1);
+    }
+  };
+
+  // Navigate to next semester
+  const goToNextSemester = () => {
+    if (currentSemesterIndex < semesterKeys.length - 1) {
+      setCurrentSemesterIndex(currentSemesterIndex + 1);
     }
   };
 
@@ -180,6 +223,15 @@ export default function StudentDegreePlan() {
           const data = await response.json();
           if (data && data.length > 0) {
             setSchedule(data);
+            
+            // Add notification that existing schedule was loaded
+            const semesterCount = Object.keys(groupBySemester(data)).length;
+            addNotification(
+              user,
+              "Welcome Back!",
+              `Your degree plan with ${data.length} courses across ${semesterCount} semesters is ready to view.`,
+              "info"
+            );
           }
         }
       } catch (err) {
@@ -281,15 +333,88 @@ export default function StudentDegreePlan() {
         {error && <p className="error" style={{ marginTop: "1rem" }}>{error}</p>}
       </div>
 
-      {schedule && schedule.length > 0 && (
+      {schedule && schedule.length > 0 && groupedSchedule && (
         <div className="card">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
             <h2>Your Course Schedule</h2>
             <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-              Total Courses: <strong>{schedule.length}</strong>
+              Total Courses: <strong>{schedule.length}</strong> | Semesters: <strong>{semesterKeys.length}</strong>
             </div>
           </div>
-          
+
+          {/* Semester Navigation */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "space-between",
+              padding: "1rem",
+              backgroundColor: "var(--background-secondary, #f8f9fa)",
+              borderRadius: "8px"
+            }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={goToPreviousSemester}
+                disabled={currentSemesterIndex === 0}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                <ChevronLeft size={20} />
+                Previous
+              </button>
+
+              <div style={{ textAlign: "center" }}>
+                <h3 style={{ margin: 0, fontSize: "1.5rem" }}>
+                  {semesterKeys[currentSemesterIndex]}
+                </h3>
+                <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+                  {groupedSchedule[semesterKeys[currentSemesterIndex]].length} courses | {
+                    groupedSchedule[semesterKeys[currentSemesterIndex]].reduce((sum, c) => sum + (c.creditHours || 0), 0)
+                  } credits
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={goToNextSemester}
+                disabled={currentSemesterIndex === semesterKeys.length - 1}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                Next
+                <ChevronRight size={20} />
+              </button>
+            </div>
+
+            {/* Semester dots indicator */}
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "center", 
+              gap: "0.5rem", 
+              marginTop: "1rem" 
+            }}>
+              {semesterKeys.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSemesterIndex(index)}
+                  style={{
+                    width: "10px",
+                    height: "10px",
+                    borderRadius: "50%",
+                    border: "none",
+                    backgroundColor: index === currentSemesterIndex 
+                      ? "var(--primary, #007bff)" 
+                      : "var(--border, #dee2e6)",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                  aria-label={`Go to ${semesterKeys[index]}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Current Semester Courses */}
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -297,16 +422,26 @@ export default function StudentDegreePlan() {
                   <th style={{ padding: "0.75rem", textAlign: "left" }}>Course</th>
                   <th style={{ padding: "0.75rem", textAlign: "left" }}>Title</th>
                   <th style={{ padding: "0.75rem", textAlign: "left" }}>Credits</th>
-                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Semester</th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Days</th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Time</th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Instructor</th>
                 </tr>
               </thead>
               <tbody>
-                {schedule.map((course, index) => (
+                {groupedSchedule[semesterKeys[currentSemesterIndex]].map((course, index) => (
                   <tr key={index} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td style={{ padding: "0.75rem" }}>{course.courseNum || `Course ${course.courseId}` || "N/A"}</td>
+                    <td style={{ padding: "0.75rem", fontWeight: "500" }}>
+                      {course.courseNum || `Course ${course.courseId}` || "N/A"}
+                    </td>
                     <td style={{ padding: "0.75rem" }}>{course.courseName || "Untitled Course"}</td>
                     <td style={{ padding: "0.75rem" }}>{course.creditHours || "N/A"}</td>
-                    <td style={{ padding: "0.75rem" }}>{course.semester || "TBD"}</td>
+                    <td style={{ padding: "0.75rem" }}>{course.days || "TBD"}</td>
+                    <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
+                      {course.startTime && course.endTime 
+                        ? `${course.startTime} - ${course.endTime}`
+                        : "TBD"}
+                    </td>
+                    <td style={{ padding: "0.75rem" }}>{course.instructorName || "TBD"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -324,4 +459,34 @@ export default function StudentDegreePlan() {
       )}
     </div>
   );
+}
+
+/**
+ * Helper function to group courses by semester
+ */
+function groupBySemester(courses) {
+  const grouped = {};
+  
+  // Sort courses by semester (chronologically)
+  const sorted = [...courses].sort((a, b) => {
+    const [aYear, bYear] = [parseInt(a.year), parseInt(b.year)];
+    if (aYear !== bYear) return aYear - bYear;
+    
+    // Season order: SPRING (1), SUMMER (2), FALL (3)
+    const seasonOrder = { SPRING: 1, SUMMER: 2, FALL: 3 };
+    const aSeason = seasonOrder[a.season?.toUpperCase()] || 0;
+    const bSeason = seasonOrder[b.season?.toUpperCase()] || 0;
+    return aSeason - bSeason;
+  });
+  
+  // Group by semester string
+  sorted.forEach(course => {
+    const semesterKey = course.semester || "Unknown Semester";
+    if (!grouped[semesterKey]) {
+      grouped[semesterKey] = [];
+    }
+    grouped[semesterKey].push(course);
+  });
+  
+  return grouped;
 }
