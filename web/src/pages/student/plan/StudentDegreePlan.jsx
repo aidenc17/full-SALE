@@ -68,7 +68,7 @@ export default function StudentDegreePlan() {
 
     try {
       // Get student ID from user (assuming it's stored in user object)
-      const studentId = user.userId; // Adjust if your user object has different structure
+      const studentId = user.userId + 2; // Adjust if your user object has different structure
 
       // Determine endpoint and body based on number of selections
       let endpoint, requestBody;
