@@ -27,9 +27,9 @@ import { Eye, EyeOff, CalendarHeart } from "lucide-react";
 
 // Demo login info for testing (needs to follow validation rules, makes testing easier)
 const DEMO_CREDENTIALS = {
-  student: { username: "studentx", password: "Aa1aaaaaaa!1" },
-  faculty: { username: "facultyx", password: "Aa1aaaaaaa!1" },
-  admin: { username: "adminxyz", password: "Aa1aaaaaaa!1" },
+  evantimm: { username: "evantimm", password: "fR7!k9PzL2q#" },
+  lauraben: { username: "lauraben", password: "Lb8$hY3mQw" },
+  aidencox: { username: "aidencox", password: "Aa1aaaaaaa!1" },
 };
 
 export default function Login() {
@@ -177,9 +177,9 @@ export default function Login() {
           <option value="" disabled>
             Fill demo credentials...
           </option>
-          <option value="student">Student (studentx)</option>
-          <option value="faculty">Faculty (facultyx)</option>
-          <option value="admin">Admin (adminxyz)</option>
+          <option value="student">evantimm (evantimm)</option>
+          <option value="faculty">lauraben (lauraben)</option>
+          <option value="admin">aidencox (aidencox)</option>
         </select>
       </div>
     </div>

@@ -29,6 +29,7 @@ export default function StudentDegreePlan() {
   ]);
   const [schedule, setSchedule] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState("");
 
   // Add a new degree selection
@@ -68,7 +69,7 @@ export default function StudentDegreePlan() {
 
     try {
       // Get student ID from user (assuming it's stored in user object)
-      const studentId = user.userId + 2; // Adjust if your user object has different structure
+      const studentId = user.userId; // Adjust if your user object has different structure
 
       // Determine endpoint and body based on number of selections
       let endpoint, requestBody;
@@ -241,6 +242,23 @@ export default function StudentDegreePlan() {
           >
             {loading ? "Generating..." : "Generate Schedule"}
           </button>
+
+          {schedule && schedule.length > 0 && (
+            <button
+              type="button"
+              className="btn"
+              onClick={handleClearSchedule}
+              disabled={clearing}
+              style={{ 
+                backgroundColor: "var(--danger, #dc3545)", 
+                color: "white",
+                border: "none"
+              }}
+            >
+              <Trash2 size={16} />
+              {clearing ? "Clearing..." : "Clear Schedule"}
+            </button>
+          )}
         </div>
 
         {error && (
@@ -253,7 +271,12 @@ export default function StudentDegreePlan() {
       {/* Schedule Display */}
       {schedule && schedule.length > 0 && (
         <div className="card">
-          <h2 style={{ marginBottom: "1rem" }}>Your Course Schedule</h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h2>Your Course Schedule</h2>
+            <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+              Total Courses: <strong>{schedule.length}</strong>
+            </div>
+          </div>
           
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -285,10 +308,6 @@ export default function StudentDegreePlan() {
               </tbody>
             </table>
           </div>
-
-          <p style={{ marginTop: "1rem", color: "var(--text-secondary)" }}>
-            Total Courses: {schedule.length}
-          </p>
         </div>
       )}
 
