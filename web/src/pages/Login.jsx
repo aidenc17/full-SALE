@@ -27,9 +27,9 @@ import { Eye, EyeOff, CalendarHeart } from "lucide-react";
 
 // Demo login info for testing (needs to follow validation rules, makes testing easier)
 const DEMO_CREDENTIALS = {
-  student: { username: "studentx", password: "Aa1aaaaaaa!1" },
-  faculty: { username: "facultyx", password: "Aa1aaaaaaa!1" },
-  admin: { username: "adminxyz", password: "Aa1aaaaaaa!1" },
+  evantimm: { username: "evantimm", password: "fR7!k9PzL2q#" },
+  lauraben: { username: "lauraben", password: "Lb8$hY3mQw" },
+  aidencox: { username: "aidencox", password: "Aa1aaaaaaa!1" },
 };
 
 export default function Login() {
@@ -56,7 +56,7 @@ export default function Login() {
     // Validate password
     if (!isValidPassword(password)) {
       setError(
-        "Password needs to be exactly 12 characters and have 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol.."
+        "Password must be 8-40 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol."
       );
       return;
     }
@@ -70,7 +70,7 @@ export default function Login() {
       const destination = state?.from?.pathname || `/${user.role}`;
       navigate(destination, { replace: true });
     } catch (err) {
-      setError("Somehow, you broke this.  Congrats.");
+      setError("You aren't in our system. Please contact CATS for help.");
     } finally {
       setLoading(false);
     }
@@ -177,9 +177,9 @@ export default function Login() {
           <option value="" disabled>
             Fill demo credentials...
           </option>
-          <option value="student">Student (studentx)</option>
-          <option value="faculty">Faculty (facultyx)</option>
-          <option value="admin">Admin (adminxyz)</option>
+          <option value="student">evantimm (evantimm)</option>
+          <option value="faculty">lauraben (lauraben)</option>
+          <option value="admin">aidencox (aidencox)</option>
         </select>
       </div>
     </div>
