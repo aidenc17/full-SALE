@@ -59,7 +59,6 @@ export default function StudentDegreePlan() {
     setError("");
     setLoading(true);
 
-    // Validate selections
     const validSelections = selectedDegrees.filter(d => d.degreeFieldOfStudyId !== "");
     if (validSelections.length === 0) {
       setError("Please select at least one major or minor");
@@ -68,28 +67,23 @@ export default function StudentDegreePlan() {
     }
 
     try {
-      // Get student ID from user (assuming it's stored in user object)
-      const studentId = user.userId; // Adjust if your user object has different structure
-
-      // Determine endpoint and body based on number of selections
+      const studentId = user.userId + 2;
       let endpoint, requestBody;
       
       console.log("Using Student ID:", studentId, "(User ID:", user.userId, "+ 2)");
       
       if (validSelections.length === 1) {
-        // Single degree - send just the degree object
         endpoint = `${API_BASE_URL}/students/${studentId}/plan`;
         requestBody = {
-          studentId: studentId,  // This is now the correct Student_Id (User_Id + 2)
+          studentId: studentId,
           degreeFieldOfStudyId: parseInt(validSelections[0].degreeFieldOfStudyId),
           majorMinor: validSelections[0].majorMinor
         };
       } else {
-        // Multiple degrees - send degreeSpecialties array
         endpoint = `${API_BASE_URL}/students/${studentId}/plan/multiple`;
         requestBody = {
           degreeSpecialties: validSelections.map(d => ({
-            studentId: studentId,  // This is now the correct Student_Id (User_Id + 2)
+            studentId: studentId,
             degreeFieldOfStudyId: parseInt(d.degreeFieldOfStudyId),
             majorMinor: d.majorMinor
           }))
@@ -100,9 +94,7 @@ export default function StudentDegreePlan() {
 
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
       });
 
@@ -122,13 +114,41 @@ export default function StudentDegreePlan() {
     }
   };
 
-  // Fetch existing schedule on load (only once)
+  // Clear schedule
+  const handleClearSchedule = async () => {
+    if (!window.confirm("Are you sure you want to clear your entire schedule? This cannot be undone.")) {
+      return;
+    }
+
+    setClearing(true);
+    setError("");
+
+    try {
+      const studentId = user.userId + 2;
+      const response = await fetch(`${API_BASE_URL}/students/${studentId}/plan`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to clear schedule");
+      }
+
+      setSchedule(null);
+      console.log("Schedule cleared successfully");
+    } catch (err) {
+      console.error("Error clearing schedule:", err);
+      setError("Failed to clear schedule. Please try again.");
+    } finally {
+      setClearing(false);
+    }
+  };
+
+  // Fetch existing schedule on load
   useEffect(() => {
     const fetchSchedule = async () => {
       if (!user?.userId) return;
       
       try {
-        // IMPORTANT: Convert User_Id to Student_Id (Student_Id = User_Id + 2)
         const studentId = user.userId + 2;
         const response = await fetch(`${API_BASE_URL}/students/${studentId}/plan`);
         
@@ -145,7 +165,7 @@ export default function StudentDegreePlan() {
 
     fetchSchedule();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
+  }, []);
 
   return (
     <div className="page-content">
@@ -161,7 +181,6 @@ export default function StudentDegreePlan() {
         </div>
       </div>
 
-      {/* Degree Selection Form */}
       <div className="card" style={{ marginBottom: "2rem" }}>
         <h2 style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <BookOpen size={20} />
@@ -169,13 +188,7 @@ export default function StudentDegreePlan() {
         </h2>
 
         {selectedDegrees.map((degree, index) => (
-          <div key={index} style={{ 
-            display: "flex", 
-            gap: "1rem", 
-            marginBottom: "1rem",
-            alignItems: "flex-start"
-          }}>
-            {/* Major/Minor Type */}
+          <div key={index} style={{ display: "flex", gap: "1rem", marginBottom: "1rem", alignItems: "flex-start" }}>
             <div className="form-field" style={{ flex: "0 0 150px" }}>
               <label className="form-label">Type</label>
               <select
@@ -188,7 +201,6 @@ export default function StudentDegreePlan() {
               </select>
             </div>
 
-            {/* Degree Selection */}
             <div className="form-field" style={{ flex: "1" }}>
               <label className="form-label">
                 {degree.majorMinor === "MAJ" ? "Major" : "Minor"}
@@ -200,17 +212,12 @@ export default function StudentDegreePlan() {
               >
                 <option value="">Select a {degree.majorMinor === "MAJ" ? "major" : "minor"}</option>
                 {degree.majorMinor === "MAJ" 
-                  ? DEGREE_OPTIONS.majors.map(m => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
-                    ))
-                  : DEGREE_OPTIONS.minors.map(m => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
-                    ))
+                  ? DEGREE_OPTIONS.majors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)
+                  : DEGREE_OPTIONS.minors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)
                 }
               </select>
             </div>
 
-            {/* Remove Button */}
             {selectedDegrees.length > 1 && (
               <button
                 type="button"
@@ -225,21 +232,11 @@ export default function StudentDegreePlan() {
         ))}
 
         <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={addDegreeSelection}
-          >
-            <Plus size={16} />
-            Add Another Degree
+          <button type="button" className="btn btn-secondary" onClick={addDegreeSelection}>
+            <Plus size={16} /> Add Another Degree
           </button>
 
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleGenerateSchedule}
-            disabled={loading}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleGenerateSchedule} disabled={loading}>
             {loading ? "Generating..." : "Generate Schedule"}
           </button>
 
@@ -249,11 +246,7 @@ export default function StudentDegreePlan() {
               className="btn"
               onClick={handleClearSchedule}
               disabled={clearing}
-              style={{ 
-                backgroundColor: "var(--danger, #dc3545)", 
-                color: "white",
-                border: "none"
-              }}
+              style={{ backgroundColor: "var(--danger, #dc3545)", color: "white", border: "none" }}
             >
               <Trash2 size={16} />
               {clearing ? "Clearing..." : "Clear Schedule"}
@@ -261,14 +254,9 @@ export default function StudentDegreePlan() {
           )}
         </div>
 
-        {error && (
-          <p className="error" style={{ marginTop: "1rem" }}>
-            {error}
-          </p>
-        )}
+        {error && <p className="error" style={{ marginTop: "1rem" }}>{error}</p>}
       </div>
 
-      {/* Schedule Display */}
       {schedule && schedule.length > 0 && (
         <div className="card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
@@ -291,18 +279,10 @@ export default function StudentDegreePlan() {
               <tbody>
                 {schedule.map((course, index) => (
                   <tr key={index} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td style={{ padding: "0.75rem" }}>
-                      {course.courseNum || `Course ${course.courseId}` || "N/A"}
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>
-                      {course.courseName || "Untitled Course"}
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>
-                      {course.creditHours || "N/A"}
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>
-                      {course.semester || "TBD"}
-                    </td>
+                    <td style={{ padding: "0.75rem" }}>{course.courseNum || `Course ${course.courseId}` || "N/A"}</td>
+                    <td style={{ padding: "0.75rem" }}>{course.courseName || "Untitled Course"}</td>
+                    <td style={{ padding: "0.75rem" }}>{course.creditHours || "N/A"}</td>
+                    <td style={{ padding: "0.75rem" }}>{course.semester || "TBD"}</td>
                   </tr>
                 ))}
               </tbody>
