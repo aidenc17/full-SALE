@@ -56,16 +56,21 @@ export default function StudentDegreePlan() {
 
   // Generate schedule
   const handleGenerateSchedule = async () => {
+    if (loading) {
+      console.log("Already generating, ignoring click");
+      return; // Prevent multiple simultaneous requests
+    }
+    
     setError("");
     setLoading(true);
-
+  
     const validSelections = selectedDegrees.filter(d => d.degreeFieldOfStudyId !== "");
     if (validSelections.length === 0) {
       setError("Please select at least one major or minor");
       setLoading(false);
       return;
     }
-
+  
     try {
       const studentId = user.userId + 2;
       let endpoint, requestBody;
