@@ -56,15 +56,20 @@ export default function StudentDegreePlan() {
 
   // Generate schedule
   const handleGenerateSchedule = async () => {
+    console.log("=== GENERATE SCHEDULE STARTED ===");
+    console.log("Loading state:", loading);
+    
     if (loading) {
       console.log("Already generating, ignoring click");
-      return; // Prevent multiple simultaneous requests
+      return;
     }
     
     setError("");
     setLoading(true);
   
     const validSelections = selectedDegrees.filter(d => d.degreeFieldOfStudyId !== "");
+    console.log("Valid selections:", validSelections);
+    
     if (validSelections.length === 0) {
       setError("Please select at least one major or minor");
       setLoading(false);
@@ -75,7 +80,8 @@ export default function StudentDegreePlan() {
       const studentId = user.userId + 2;
       let endpoint, requestBody;
       
-      console.log("Using Student ID:", studentId, "(User ID:", user.userId, "+ 2)");
+      console.log("Using Student ID:", studentId);
+      console.log("User object:", user);
       
       if (validSelections.length === 1) {
         endpoint = `${API_BASE_URL}/students/${studentId}/plan`;
@@ -84,6 +90,7 @@ export default function StudentDegreePlan() {
           degreeFieldOfStudyId: parseInt(validSelections[0].degreeFieldOfStudyId),
           majorMinor: validSelections[0].majorMinor
         };
+        console.log("Single degree endpoint:", endpoint);
       } else {
         endpoint = `${API_BASE_URL}/students/${studentId}/plan/multiple`;
         requestBody = {
@@ -93,31 +100,41 @@ export default function StudentDegreePlan() {
             majorMinor: d.majorMinor
           }))
         };
+        console.log("Multiple degree endpoint:", endpoint);
       }
-
-      console.log("Generating schedule with:", requestBody);
-
+  
+      console.log("Request body:", requestBody);
+      console.log("About to fetch...");
+  
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)
       });
-
+  
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+  
       if (!response.ok) {
         const errorData = await response.json();
+        console.log("Error data:", errorData);
         throw new Error(errorData.message || "Failed to generate schedule");
       }
-
+  
       const data = await response.json();
-      console.log("Raw response data length:", data.length);  // debug 19 course issue
+      console.log("Raw response data length:", data.length);
       console.log("Raw response data:", data);
+      
       setSchedule(data);
-      console.log("Schedule generated:", data);
+      console.log("Schedule state set with", data.length, "courses");
     } catch (err) {
-      console.error("Error generating schedule:", err);
+      console.error("=== ERROR GENERATING SCHEDULE ===");
+      console.error("Error:", err);
+      console.error("Error message:", err.message);
       setError(err.message || "Failed to generate schedule. Please try again.");
     } finally {
       setLoading(false);
+      console.log("=== GENERATE SCHEDULE ENDED ===");
     }
   };
 
