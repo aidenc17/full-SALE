@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from "react";
 import { getCurrentUser, addNotification } from "../../../api";
-import { BookOpen, Calendar, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, Calendar, Plus, Trash2, ChevronLeft, ChevronRight, Download } from "lucide-react";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
@@ -36,6 +36,7 @@ export default function StudentDegreePlan() {
   const [includeSummer, setIncludeSummer] = useState(true); // Option to include/exclude summer
   const [targetGraduation, setTargetGraduation] = useState(""); // Target graduation semester (format: "SPRING-2030" or empty for ASAP)
   const [numberOfCoops, setNumberOfCoops] = useState(0); // Number of co-op semesters (0-3)
+  const [searchQuery, setSearchQuery] = useState(""); // Search filter for courses
   
   // Generate graduation options (next 10 years, 3 semesters per year)
   const graduationOptions = [];
@@ -169,7 +170,7 @@ export default function StudentDegreePlan() {
       
       addNotification(
         user,
-        "Schedule Generated Successfully!",
+        "Schedule Generated Successfully! 🎓",
         message,
         heavySemesters.length > 0 ? "warning" : "success"
       );
@@ -252,6 +253,208 @@ export default function StudentDegreePlan() {
     }
   };
 
+  // Check if a course matches the search query
+  const courseMatchesSearch = (course) => {
+    if (!searchQuery.trim()) return true; // No search = show all
+    
+    const query = searchQuery.toLowerCase();
+    const courseName = (course.courseName || "").toLowerCase();
+    const courseNum = (course.courseNum || "").toLowerCase();
+    const instructor = (course.instructorName || "").toLowerCase();
+    
+    return courseName.includes(query) || 
+           courseNum.includes(query) || 
+           instructor.includes(query);
+  };
+
+  // Find first semester with matching courses
+  const findFirstMatchingSemester = () => {
+    if (!searchQuery.trim() || !groupedSchedule) return;
+    
+    for (let i = 0; i < semesterKeys.length; i++) {
+      const semesterCourses = groupedSchedule[semesterKeys[i]];
+      if (semesterCourses.some(courseMatchesSearch)) {
+        setCurrentSemesterIndex(i);
+        return;
+      }
+    }
+  };
+
+  // Auto-jump to first match when search changes
+  useEffect(() => {
+    if (searchQuery.trim() && groupedSchedule) {
+      findFirstMatchingSemester();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, groupedSchedule]);
+
+  // Export schedule to PDF
+  const handleExportPDF = () => {
+    if (!schedule || !groupedSchedule) return;
+
+    // Create a simple HTML document for printing
+    const printWindow = window.open('', '', 'width=800,height=600');
+    
+    const degreeNames = selectedDegrees
+      .filter(d => d.degreeFieldOfStudyId)
+      .map(d => {
+        const option = d.majorMinor === "MAJ" 
+          ? DEGREE_OPTIONS.majors.find(m => m.id === parseInt(d.degreeFieldOfStudyId))
+          : DEGREE_OPTIONS.minors.find(m => m.id === parseInt(d.degreeFieldOfStudyId));
+        return option?.name;
+      })
+      .filter(Boolean)
+      .join(" + ");
+
+    const totalCredits = schedule.reduce((sum, c) => sum + (c.creditHours || 0), 0);
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Degree Plan - ${user?.username || 'Student'}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 40px;
+              max-width: 1000px;
+              margin: 0 auto;
+            }
+            h1 {
+              color: #333;
+              border-bottom: 3px solid #007bff;
+              padding-bottom: 10px;
+            }
+            .header-info {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 30px;
+              padding: 15px;
+              background: #f8f9fa;
+              border-radius: 5px;
+            }
+            .semester {
+              page-break-inside: avoid;
+              margin-bottom: 30px;
+            }
+            .semester-title {
+              background: #007bff;
+              color: white;
+              padding: 10px 15px;
+              font-size: 18px;
+              font-weight: bold;
+              border-radius: 5px 5px 0 0;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            th {
+              background: #e9ecef;
+              padding: 10px;
+              text-align: left;
+              border: 1px solid #dee2e6;
+              font-weight: bold;
+            }
+            td {
+              padding: 8px 10px;
+              border: 1px solid #dee2e6;
+            }
+            tr:nth-child(even) {
+              background: #f8f9fa;
+            }
+            .coop-row {
+              background: #e7f3ff !important;
+              font-weight: bold;
+            }
+            .footer {
+              margin-top: 40px;
+              text-align: center;
+              color: #6c757d;
+              font-size: 12px;
+              border-top: 1px solid #dee2e6;
+              padding-top: 10px;
+            }
+            @media print {
+              body { padding: 20px; }
+              .semester { page-break-inside: avoid; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Course Schedule - ${degreeNames || 'Degree Plan'}</h1>
+          
+          <div class="header-info">
+            <div>
+              <strong>Student:</strong> ${user?.username || 'N/A'}<br>
+              <strong>Total Courses:</strong> ${schedule.length}<br>
+              <strong>Total Credits:</strong> ${totalCredits}
+            </div>
+            <div style="text-align: right;">
+              <strong>Semesters:</strong> ${semesterKeys.length}<br>
+              <strong>Generated:</strong> ${new Date().toLocaleDateString()}<br>
+              <strong>Co-ops:</strong> ${numberOfCoops}
+            </div>
+          </div>
+
+          ${semesterKeys.map(semKey => {
+            const courses = groupedSchedule[semKey];
+            const semesterCredits = courses.reduce((sum, c) => sum + (c.creditHours || 0), 0);
+            
+            return `
+              <div class="semester">
+                <div class="semester-title">
+                  ${semKey} - ${courses.length} Course${courses.length !== 1 ? 's' : ''} (${semesterCredits} Credits)
+                </div>
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 12%;">Course</th>
+                      <th style="width: 35%;">Title</th>
+                      <th style="width: 10%;">Credits</th>
+                      <th style="width: 10%;">Days</th>
+                      <th style="width: 18%;">Time</th>
+                      <th style="width: 15%;">Instructor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${courses.map(course => {
+                      const isCoop = course.courseNum === "COOP";
+                      return `
+                        <tr class="${isCoop ? 'coop-row' : ''}">
+                          <td>${course.courseNum || 'N/A'}</td>
+                          <td>${course.courseName || 'Untitled Course'}</td>
+                          <td>${course.creditHours || 0}</td>
+                          <td>${course.days || (isCoop ? 'Full-time' : 'TBD')}</td>
+                          <td>${course.startTime && course.endTime ? course.startTime + ' - ' + course.endTime : (isCoop ? 'Work Experience' : 'TBD')}</td>
+                          <td>${course.instructorName || 'TBD'}</td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }).join('')}
+
+          <div class="footer">
+            Generated by DegreeAdmin on ${new Date().toLocaleString()}<br>
+            This schedule is subject to change. Please verify with your academic advisor.
+          </div>
+        </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // Wait a moment for content to load, then trigger print dialog
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 250);
+  };
+
   // Fetch existing schedule on load
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -270,7 +473,7 @@ export default function StudentDegreePlan() {
             const semesterCount = Object.keys(groupBySemester(data)).length;
             addNotification(
               user,
-              "Welcome Back!",
+              "Welcome Back! 📚",
               `Your degree plan with ${data.length} courses across ${semesterCount} semesters is ready to view.`,
               "info"
             );
@@ -407,16 +610,28 @@ export default function StudentDegreePlan() {
           </button>
 
           {schedule && schedule.length > 0 && (
-            <button
-              type="button"
-              className="btn"
-              onClick={handleClearSchedule}
-              disabled={clearing}
-              style={{ backgroundColor: "var(--danger, #dc3545)", color: "white", border: "none" }}
-            >
-              <Trash2 size={16} />
-              {clearing ? "Clearing..." : "Clear Schedule"}
-            </button>
+            <>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleExportPDF}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                <Download size={16} />
+                Export PDF
+              </button>
+              
+              <button
+                type="button"
+                className="btn"
+                onClick={handleClearSchedule}
+                disabled={clearing}
+                style={{ backgroundColor: "var(--danger, #dc3545)", color: "white", border: "none" }}
+              >
+                <Trash2 size={16} />
+                {clearing ? "Clearing..." : "Clear Schedule"}
+              </button>
+            </>
           )}
         </div>
 
@@ -427,9 +642,71 @@ export default function StudentDegreePlan() {
         <div className="card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
             <h2>Your Course Schedule</h2>
-            <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-              Total Courses: <strong>{schedule.length}</strong> | Semesters: <strong>{semesterKeys.length}</strong>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleExportPDF}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+              >
+                <Download size={16} />
+                Export PDF
+              </button>
+              <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+                Total Courses: <strong>{schedule.length}</strong> | Semesters: <strong>{semesterKeys.length}</strong>
+              </div>
             </div>
+          </div>
+
+          {/* Search Box */}
+          <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ position: "relative", maxWidth: "500px" }}>
+              <input
+                type="text"
+                className="input"
+                placeholder="🔍 Search courses by name, number, or instructor..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ 
+                  paddingRight: searchQuery ? "2.5rem" : "1rem",
+                  width: "100%"
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  style={{
+                    position: "absolute",
+                    right: "0.5rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--text-secondary)",
+                    fontSize: "1.2rem",
+                    padding: "0.25rem 0.5rem"
+                  }}
+                  title="Clear search"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            {searchQuery && (() => {
+              const totalMatches = schedule.filter(courseMatchesSearch).length;
+              const semestersWithMatches = semesterKeys.filter(semKey => 
+                groupedSchedule[semKey].some(courseMatchesSearch)
+              ).length;
+              
+              return (
+                <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
+                  Found <strong>{totalMatches}</strong> course{totalMatches !== 1 ? 's' : ''} 
+                  {' '}across <strong>{semestersWithMatches}</strong> semester{semestersWithMatches !== 1 ? 's' : ''}
+                  {totalMatches > 0 && " (highlighted in yellow)"}
+                </p>
+              );
+            })()}
           </div>
 
           {/* Semester Navigation */}
@@ -483,24 +760,33 @@ export default function StudentDegreePlan() {
               gap: "0.5rem", 
               marginTop: "1rem" 
             }}>
-              {semesterKeys.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSemesterIndex(index)}
-                  style={{
-                    width: "10px",
-                    height: "10px",
-                    borderRadius: "50%",
-                    border: "none",
-                    backgroundColor: index === currentSemesterIndex 
-                      ? "var(--primary, #007bff)" 
-                      : "var(--border, #dee2e6)",
-                    cursor: "pointer",
-                    transition: "all 0.2s"
-                  }}
-                  aria-label={`Go to ${semesterKeys[index]}`}
-                />
-              ))}
+              {semesterKeys.map((semKey, index) => {
+                const hasMatches = searchQuery.trim() && 
+                                   groupedSchedule[semKey].some(courseMatchesSearch);
+                
+                return (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSemesterIndex(index)}
+                    style={{
+                      width: "10px",
+                      height: "10px",
+                      borderRadius: "50%",
+                      border: hasMatches ? "2px solid var(--warning, #ffc107)" : "none",
+                      backgroundColor: index === currentSemesterIndex 
+                        ? "var(--primary, #007bff)" 
+                        : hasMatches
+                          ? "var(--warning, #ffc107)"
+                          : "var(--border, #dee2e6)",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      transform: hasMatches ? "scale(1.3)" : "scale(1)"
+                    }}
+                    aria-label={`Go to ${semesterKeys[index]}${hasMatches ? ' (has matches)' : ''}`}
+                    title={hasMatches ? `${semKey} - Has matching courses` : semKey}
+                  />
+                );
+              })}
             </div>
           </div>
 
@@ -518,33 +804,56 @@ export default function StudentDegreePlan() {
                 </tr>
               </thead>
               <tbody>
-                {groupedSchedule[semesterKeys[currentSemesterIndex]].map((course, index) => {
-                  const isCoop = course.courseNum === "COOP" || course.courseName === "Co-op";
-                  return (
-                    <tr 
-                      key={index} 
-                      style={{ 
-                        borderBottom: "1px solid var(--border)",
-                        backgroundColor: isCoop ? "var(--info-bg, #e7f3ff)" : "transparent"
-                      }}
-                    >
-                      <td style={{ padding: "0.75rem", fontWeight: isCoop ? "600" : "500" }}>
-                        {course.courseNum || `Course ${course.courseId}` || "N/A"}
-                      </td>
-                      <td style={{ padding: "0.75rem", fontWeight: isCoop ? "600" : "normal" }}>
-                        {course.courseName || "Untitled Course"}
-                      </td>
-                      <td style={{ padding: "0.75rem" }}>{course.creditHours || "N/A"}</td>
-                      <td style={{ padding: "0.75rem" }}>{course.days || (isCoop ? "Full-time" : "TBD")}</td>
-                      <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
-                        {course.startTime && course.endTime 
-                          ? `${course.startTime} - ${course.endTime}`
-                          : (isCoop ? "Work Experience" : "TBD")}
-                      </td>
-                      <td style={{ padding: "0.75rem" }}>{course.instructorName || "TBD"}</td>
-                    </tr>
-                  );
-                })}
+                {groupedSchedule[semesterKeys[currentSemesterIndex]]
+                  .filter(course => courseMatchesSearch(course))
+                  .map((course, index) => {
+                    const isCoop = course.courseNum === "COOP" || course.courseName === "Co-op";
+                    const isMatch = searchQuery.trim() && courseMatchesSearch(course);
+                    
+                    return (
+                      <tr 
+                        key={index} 
+                        style={{ 
+                          borderBottom: "1px solid var(--border)",
+                          backgroundColor: isCoop 
+                            ? "var(--info-bg, #e7f3ff)" 
+                            : isMatch 
+                              ? "var(--warning-bg, #fff3cd)" 
+                              : "transparent",
+                          transition: "background-color 0.2s"
+                        }}
+                      >
+                        <td style={{ 
+                          padding: "0.75rem", 
+                          fontWeight: (isCoop || isMatch) ? "600" : "500" 
+                        }}>
+                          {course.courseNum || `Course ${course.courseId}` || "N/A"}
+                        </td>
+                        <td style={{ 
+                          padding: "0.75rem", 
+                          fontWeight: (isCoop || isMatch) ? "600" : "normal" 
+                        }}>
+                          {course.courseName || "Untitled Course"}
+                        </td>
+                        <td style={{ padding: "0.75rem" }}>{course.creditHours || "N/A"}</td>
+                        <td style={{ padding: "0.75rem" }}>{course.days || (isCoop ? "Full-time" : "TBD")}</td>
+                        <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
+                          {course.startTime && course.endTime 
+                            ? `${course.startTime} - ${course.endTime}`
+                            : (isCoop ? "Work Experience" : "TBD")}
+                        </td>
+                        <td style={{ padding: "0.75rem" }}>{course.instructorName || "TBD"}</td>
+                      </tr>
+                    );
+                  })}
+                {searchQuery.trim() && 
+                 groupedSchedule[semesterKeys[currentSemesterIndex]].filter(courseMatchesSearch).length === 0 && (
+                  <tr>
+                    <td colSpan="6" style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                      No courses found in this semester matching "{searchQuery}"
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
