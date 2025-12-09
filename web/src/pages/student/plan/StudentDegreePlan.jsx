@@ -34,6 +34,17 @@ export default function StudentDegreePlan() {
   const [error, setError] = useState("");
   const [currentSemesterIndex, setCurrentSemesterIndex] = useState(0);
   const [includeSummer, setIncludeSummer] = useState(true); // Option to include/exclude summer
+  const [targetGraduation, setTargetGraduation] = useState(""); // Target graduation semester (format: "SPRING-2030" or empty for ASAP)
+  const [numberOfCoops, setNumberOfCoops] = useState(0); // Number of co-op semesters (0-3)
+  
+  // Generate graduation options (next 10 years, 3 semesters per year)
+  const graduationOptions = [];
+  const currentYear = 2026;
+  for (let year = currentYear; year < currentYear + 10; year++) {
+    graduationOptions.push({ value: `SPRING-${year}`, label: `Spring ${year}` });
+    graduationOptions.push({ value: `SUMMER-${year}`, label: `Summer ${year}` });
+    graduationOptions.push({ value: `FALL-${year}`, label: `Fall ${year}` });
+  }
 
   // Group schedule by semester
   const groupedSchedule = schedule ? groupBySemester(schedule) : null;
@@ -89,7 +100,9 @@ export default function StudentDegreePlan() {
           studentId: studentId,
           degreeFieldOfStudyId: parseInt(validSelections[0].degreeFieldOfStudyId),
           majorMinor: validSelections[0].majorMinor,
-          includeSummer: includeSummer
+          includeSummer: includeSummer,
+          targetGraduation: targetGraduation || null,
+          numberOfCoops: numberOfCoops
         };
       } else {
         endpoint = `${API_BASE_URL}/students/${studentId}/plan/multiple`;
@@ -99,7 +112,9 @@ export default function StudentDegreePlan() {
             degreeFieldOfStudyId: parseInt(d.degreeFieldOfStudyId),
             majorMinor: d.majorMinor
           })),
-          includeSummer: includeSummer
+          includeSummer: includeSummer,
+          targetGraduation: targetGraduation || null,
+          numberOfCoops: numberOfCoops
         };
       }
 
@@ -346,6 +361,42 @@ export default function StudentDegreePlan() {
           </label>
         </div>
 
+        <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+          <label className="form-label">Target Graduation (optional)</label>
+          <select
+            className="input"
+            value={targetGraduation}
+            onChange={(e) => setTargetGraduation(e.target.value)}
+            style={{ maxWidth: "300px" }}
+          >
+            <option value="">As soon as possible (ASAP)</option>
+            {graduationOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+          <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
+            Select a target semester to graduate by. Max 6 courses per semester.
+          </p>
+        </div>
+
+        <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+          <label className="form-label">Number of Co-op Semesters</label>
+          <select
+            className="input"
+            value={numberOfCoops}
+            onChange={(e) => setNumberOfCoops(parseInt(e.target.value))}
+            style={{ maxWidth: "300px" }}
+          >
+            <option value={0}>0 - No co-ops</option>
+            <option value={1}>1 co-op semester</option>
+            <option value={2}>2 co-op semesters</option>
+            <option value={3}>3 co-op semesters</option>
+          </select>
+          <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
+            Co-op semesters have no classes - you'll work full-time instead.
+          </p>
+        </div>
+
         <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
           <button type="button" className="btn btn-secondary" onClick={addDegreeSelection}>
             <Plus size={16} /> Add Another Degree
@@ -467,22 +518,33 @@ export default function StudentDegreePlan() {
                 </tr>
               </thead>
               <tbody>
-                {groupedSchedule[semesterKeys[currentSemesterIndex]].map((course, index) => (
-                  <tr key={index} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td style={{ padding: "0.75rem", fontWeight: "500" }}>
-                      {course.courseNum || `Course ${course.courseId}` || "N/A"}
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>{course.courseName || "Untitled Course"}</td>
-                    <td style={{ padding: "0.75rem" }}>{course.creditHours || "N/A"}</td>
-                    <td style={{ padding: "0.75rem" }}>{course.days || "TBD"}</td>
-                    <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
-                      {course.startTime && course.endTime 
-                        ? `${course.startTime} - ${course.endTime}`
-                        : "TBD"}
-                    </td>
-                    <td style={{ padding: "0.75rem" }}>{course.instructorName || "TBD"}</td>
-                  </tr>
-                ))}
+                {groupedSchedule[semesterKeys[currentSemesterIndex]].map((course, index) => {
+                  const isCoop = course.courseNum === "COOP" || course.courseName === "Co-op";
+                  return (
+                    <tr 
+                      key={index} 
+                      style={{ 
+                        borderBottom: "1px solid var(--border)",
+                        backgroundColor: isCoop ? "var(--info-bg, #e7f3ff)" : "transparent"
+                      }}
+                    >
+                      <td style={{ padding: "0.75rem", fontWeight: isCoop ? "600" : "500" }}>
+                        {course.courseNum || `Course ${course.courseId}` || "N/A"}
+                      </td>
+                      <td style={{ padding: "0.75rem", fontWeight: isCoop ? "600" : "normal" }}>
+                        {course.courseName || "Untitled Course"}
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>{course.creditHours || "N/A"}</td>
+                      <td style={{ padding: "0.75rem" }}>{course.days || (isCoop ? "Full-time" : "TBD")}</td>
+                      <td style={{ padding: "0.75rem", fontSize: "0.9rem" }}>
+                        {course.startTime && course.endTime 
+                          ? `${course.startTime} - ${course.endTime}`
+                          : (isCoop ? "Work Experience" : "TBD")}
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>{course.instructorName || "TBD"}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
