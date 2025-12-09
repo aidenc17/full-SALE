@@ -33,6 +33,7 @@ export default function StudentDegreePlan() {
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState("");
   const [currentSemesterIndex, setCurrentSemesterIndex] = useState(0);
+  const [includeSummer, setIncludeSummer] = useState(true); // Option to include/exclude summer
 
   // Group schedule by semester
   const groupedSchedule = schedule ? groupBySemester(schedule) : null;
@@ -87,7 +88,8 @@ export default function StudentDegreePlan() {
         requestBody = {
           studentId: studentId,
           degreeFieldOfStudyId: parseInt(validSelections[0].degreeFieldOfStudyId),
-          majorMinor: validSelections[0].majorMinor
+          majorMinor: validSelections[0].majorMinor,
+          includeSummer: includeSummer
         };
       } else {
         endpoint = `${API_BASE_URL}/students/${studentId}/plan/multiple`;
@@ -96,7 +98,8 @@ export default function StudentDegreePlan() {
             studentId: studentId,
             degreeFieldOfStudyId: parseInt(d.degreeFieldOfStudyId),
             majorMinor: d.majorMinor
-          }))
+          })),
+          includeSummer: includeSummer
         };
       }
 
@@ -115,7 +118,7 @@ export default function StudentDegreePlan() {
       setSchedule(data);
       setCurrentSemesterIndex(0);
       
-      // Add success notification
+      // Add success notification with optimization info
       const degreeNames = validSelections.map(d => {
         const option = d.majorMinor === "MAJ" 
           ? DEGREE_OPTIONS.majors.find(m => m.id === parseInt(d.degreeFieldOfStudyId))
@@ -123,13 +126,37 @@ export default function StudentDegreePlan() {
         return option?.name;
       }).filter(Boolean).join(" + ");
       
-      const semesterCount = Object.keys(groupBySemester(data)).length;
+      const grouped = groupBySemester(data);
+      const semesterCount = Object.keys(grouped).length;
+      const avgCoursesPerSemester = (data.length / semesterCount).toFixed(1);
+      
+      // Calculate graduation timeline
+      const semesters = Object.keys(grouped).sort();
+      const lastSemester = semesters[semesters.length - 1];
+      
+      // Check for heavy semesters (>15 credit hours)
+      const heavySemesters = [];
+      Object.keys(grouped).forEach(semKey => {
+        const semesterCredits = grouped[semKey].reduce((sum, c) => sum + (c.creditHours || 0), 0);
+        if (semesterCredits > 15) {
+          heavySemesters.push({ semester: semKey, credits: semesterCredits });
+        }
+      });
+      
+      // Base notification message
+      let message = `Your ${degreeNames} schedule is optimized for efficiency: ${data.length} courses across ${semesterCount} semesters (${avgCoursesPerSemester} avg per semester). Expected completion: ${lastSemester}.`;
+      
+      // Add warning if there are heavy semesters
+      if (heavySemesters.length > 0) {
+        const heavyList = heavySemesters.map(s => `${s.semester} (${s.credits} credits)`).join(", ");
+        message += ` ⚠️ Note: Some semesters exceed 15 credits: ${heavyList}. Consider adjusting your workload.`;
+      }
       
       addNotification(
         user,
-        "Schedule Generated Successfully! 🎓",
-        `Your ${degreeNames} schedule has been created with ${data.length} courses across ${semesterCount} semesters.`,
-        "success"
+        "Schedule Generated Successfully!",
+        message,
+        heavySemesters.length > 0 ? "warning" : "success"
       );
       
     } catch (err) {
@@ -306,6 +333,18 @@ export default function StudentDegreePlan() {
             )}
           </div>
         ))}
+
+        <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={includeSummer}
+              onChange={(e) => setIncludeSummer(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            <span>Include summer semesters (uncheck to take summers off)</span>
+          </label>
+        </div>
 
         <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
           <button type="button" className="btn btn-secondary" onClick={addDegreeSelection}>

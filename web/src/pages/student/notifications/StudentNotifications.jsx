@@ -7,7 +7,7 @@
  * - Shows all notifications with unread count
  * - Filter to show unread only
  * - Mark all as read functionality
- * - Click notifications to go to the related page
+ * - Click notifications to expand and see full message
  * - Syncs with notification bell via shared store
  *
  * DATA SOURCE:
@@ -32,15 +32,34 @@ export default function StudentNotifications() {
 
   // Local UI filter
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  
+  // Track which notifications are expanded
+  const [expandedIds, setExpandedIds] = useState(new Set());
 
   const visibleItems = showUnreadOnly ? items.filter((n) => n.unread) : items;
+  
+  function toggleExpanded(id) {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
   function handleNotificationClick(notification) {
-    // Mark as read and navigate
-    if (typeof markRead === "function") {
+    // Toggle expansion
+    toggleExpanded(notification.id);
+    
+    // Mark as read
+    if (notification.unread && typeof markRead === "function") {
       markRead(notification.id);
     }
 
+    // Navigate if there's a link (only for certain notification types)
     if (notification.href) {
       navigate(notification.href);
     }
@@ -95,52 +114,80 @@ export default function StudentNotifications() {
           </p>
         ) : (
           <ul style={{ marginTop: 12, listStyle: "none", padding: 0 }}>
-            {visibleItems.map((notification) => (
-              <li
-                key={notification.id}
-                onClick={() => handleNotificationClick(notification)}
-                style={{
-                  padding: "10px 12px",
-                  borderRadius: 8,
-                  marginBottom: 8,
-                  cursor: notification.href ? "pointer" : "default",
-                  background: notification.unread
-                    ? "var(--active-bg)"
-                    : "transparent",
-                }}
-              >
-                <div
+            {visibleItems.map((notification) => {
+              const isExpanded = expandedIds.has(notification.id);
+              const hasMessage = notification.message || notification.detail;
+              
+              return (
+                <li
+                  key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
                   style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    gap: 8,
+                    padding: "10px 12px",
+                    borderRadius: 8,
+                    marginBottom: 8,
+                    cursor: "pointer",
+                    background: notification.unread
+                      ? "var(--active-bg)"
+                      : "transparent",
+                    transition: "background 0.2s",
                   }}
                 >
-                  <strong>
-                    {getNotificationLabel(notification.type)} —{" "}
-                    {notification.title}
-                  </strong>
-                  <span style={{ opacity: 0.6, fontSize: 12 }}>
-                    {notification.when}
-                  </span>
-                  {notification.unread && (
-                    <span
-                      aria-label="unread"
-                      style={{
-                        marginLeft: "auto",
-                        fontSize: 12,
-                        padding: "2px 6px",
-                        borderRadius: 12,
-                        background: "var(--active-bg)",
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      gap: 8,
+                    }}
+                  >
+                    <strong>
+                      {getNotificationLabel(notification.type)} —{" "}
+                      {notification.title}
+                    </strong>
+                    <span style={{ opacity: 0.6, fontSize: 12 }}>
+                      {notification.when}
+                    </span>
+                    {notification.unread && (
+                      <span
+                        aria-label="unread"
+                        style={{
+                          marginLeft: "auto",
+                          fontSize: 12,
+                          padding: "2px 6px",
+                          borderRadius: 12,
+                          background: "var(--active-bg)",
+                        }}
+                      >
+                        unread
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Expandable message */}
+                  {isExpanded && hasMessage && (
+                    <div 
+                      style={{ 
+                        marginTop: 8,
+                        paddingTop: 8,
+                        borderTop: "1px solid var(--border-color)",
+                        opacity: 0.9,
+                        whiteSpace: "pre-wrap",
+                        lineHeight: 1.5
                       }}
                     >
-                      unread
-                    </span>
+                      {notification.message || notification.detail}
+                    </div>
                   )}
-                </div>
-                <div style={{ opacity: 0.9 }}>{notification.detail}</div>
-              </li>
-            ))}
+                  
+                  {/* Click to expand hint */}
+                  {!isExpanded && hasMessage && (
+                    <div style={{ fontSize: 12, opacity: 0.6, marginTop: 4 }}>
+                      Click to view details
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -162,6 +209,10 @@ function getNotificationLabel(type) {
     FACULTY_GUIDANCE: "Guidance",
     COURSE_ADDED: "Catalog",
     USER_CREATED: "Users",
+    success: "Info",
+    warning: "Warning",
+    error: "Error",
+    info: "Info",
   };
 
   return labels[type] || "Info";
