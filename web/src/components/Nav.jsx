@@ -72,7 +72,9 @@ export default function Nav() {
     student: [
       { to: "/student", label: "Dashboard" },
       { to: "/student/plan", label: "Degree Plan" },
-      { to: "/student/requests", label: "Requests" },
+      //{ to: "/student/gpa-calculator", label: "GPA Calculator" },
+      { to: "/student/coop-request", label: "Co-op Request" },
+      //{ to: "/student/requests", label: "Requests" },
       { to: "/student/notifications", label: "Notifications" },
     ],
     faculty: [
