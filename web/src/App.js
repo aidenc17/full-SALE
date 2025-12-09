@@ -32,6 +32,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import StudentNotifications from "./pages/student/notifications/StudentNotifications";
 import StudentDegreePlan from "./pages/student/plan/StudentDegreePlan";
 import StudentRequests from "./pages/student/requests/StudentRequests";
+import StudentCoopRequest from './pages/student/StudentRequestCoop';
+import StudentGPACalculator from './pages/student/StudentGPACalculator';
 
 /**
  * Placeholder component for pages that aren't finished yet
@@ -93,6 +95,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/student/coop-request" element={<StudentCoopRequest />} />
+          <Route path="/student/gpa-calculator" element={<StudentGPACalculator />} />
 
           {/* ========== FACULTY ROUTES ========== */}
           <Route

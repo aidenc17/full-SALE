@@ -37,6 +37,55 @@ export default function StudentDegreePlan() {
   const [targetGraduation, setTargetGraduation] = useState(""); // Target graduation semester (format: "SPRING-2030" or empty for ASAP)
   const [numberOfCoops, setNumberOfCoops] = useState(0); // Number of co-op semesters (0-3)
   const [searchQuery, setSearchQuery] = useState(""); // Search filter for courses
+  const [grades, setGrades] = useState({}); // Track grades for GPA calculation { "courseId-sectionId": "A" }
+
+  // Grade point values
+  const gradePoints = {
+    "A": 4.0,
+    "A-": 3.7,
+    "B+": 3.3,
+    "B": 3.0,
+    "B-": 2.7,
+    "C+": 2.3,
+    "C": 2.0,
+    "C-": 1.7,
+    "D+": 1.3,
+    "D": 1.0,
+    "F": 0.0
+  };
+
+  // Calculate GPA for a semester or overall
+  const calculateGPA = (courses) => {
+    const gradedCourses = courses.filter(c => {
+      const key = `${c.courseId}-${c.sectionId}`;
+      return grades[key] && c.creditHours > 0 && c.courseNum !== "COOP";
+    });
+
+    if (gradedCourses.length === 0) return null;
+
+    const totalPoints = gradedCourses.reduce((sum, c) => {
+      const key = `${c.courseId}-${c.sectionId}`;
+      const grade = grades[key];
+      return sum + (gradePoints[grade] * c.creditHours);
+    }, 0);
+
+    const totalCredits = gradedCourses.reduce((sum, c) => sum + c.creditHours, 0);
+
+    return (totalPoints / totalCredits).toFixed(2);
+  };
+
+  // Get workload indicator for a semester
+  const getWorkloadIndicator = (courses) => {
+    const totalCredits = courses
+      .filter(c => c.courseNum !== "COOP")
+      .reduce((sum, c) => sum + (c.creditHours || 0), 0);
+    
+    if (totalCredits === 0) return { label: "Co-op", color: "#17a2b8", level: "info" };
+    if (totalCredits >= 18) return { label: "Heavy Load", color: "#dc3545", level: "heavy" };
+    if (totalCredits >= 15) return { label: "Full Load", color: "#ffc107", level: "full" };
+    if (totalCredits >= 12) return { label: "Moderate Load", color: "#28a745", level: "moderate" };
+    return { label: "Light Load", color: "#007bff", level: "light" };
+  };
   
   // Generate graduation options (next 10 years, 3 semesters per year)
   const graduationOptions = [];
@@ -170,7 +219,7 @@ export default function StudentDegreePlan() {
       
       addNotification(
         user,
-        "Schedule Generated Successfully! 🎓",
+        "Schedule Generated Successfully!",
         message,
         heavySemesters.length > 0 ? "warning" : "success"
       );
@@ -287,6 +336,15 @@ export default function StudentDegreePlan() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, groupedSchedule]);
+
+  // Handle grade change for a course
+  const handleGradeChange = (courseId, sectionId, grade) => {
+    const key = `${courseId}-${sectionId}`;
+    setGrades(prev => ({
+      ...prev,
+      [key]: grade
+    }));
+  };
 
   // Export schedule to PDF
   const handleExportPDF = () => {
@@ -473,7 +531,7 @@ export default function StudentDegreePlan() {
             const semesterCount = Object.keys(groupBySemester(data)).length;
             addNotification(
               user,
-              "Welcome Back! 📚",
+              "Welcome Back!",
               `Your degree plan with ${data.length} courses across ${semesterCount} semesters is ready to view.`,
               "info"
             );
@@ -652,11 +710,50 @@ export default function StudentDegreePlan() {
                 <Download size={16} />
                 Export PDF
               </button>
-              <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-                Total Courses: <strong>{schedule.length}</strong> | Semesters: <strong>{semesterKeys.length}</strong>
+              <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+                {(() => {
+                  const cumulativeGPA = calculateGPA(schedule);
+                  const totalCredits = schedule.filter(c => c.courseNum !== "COOP").reduce((sum, c) => sum + (c.creditHours || 0), 0);
+                  const completedCredits = schedule.filter(c => {
+                    const key = `${c.courseId}-${c.sectionId}`;
+                    return grades[key] && c.courseNum !== "COOP";
+                  }).reduce((sum, c) => sum + (c.creditHours || 0), 0);
+                  
+                  return (
+                    <>
+                      {cumulativeGPA && (
+                        <div style={{
+                          padding: "0.5rem 1rem",
+                          borderRadius: "8px",
+                          backgroundColor: "#28a745",
+                          color: "white",
+                          fontSize: "0.9rem",
+                          fontWeight: "600"
+                        }}>
+                          Cumulative GPA: {cumulativeGPA}
+                        </div>
+                      )}
+                      <div style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+                        {cumulativeGPA && `${completedCredits}/${totalCredits} credits | `}
+                        <strong>{schedule.length}</strong> courses | <strong>{semesterKeys.length}</strong> semesters
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
+
+          {/* GPA Calculator Instructions */}
+          {Object.keys(grades).length === 0 && (
+            <div style={{
+              padding: "1rem",
+              borderRadius: "8px",
+              marginBottom: "1.5rem",
+              fontSize: "0.9rem"
+            }}>
+            </div>
+          )}
 
           {/* Search Box */}
           <div style={{ marginBottom: "1.5rem" }}>
@@ -730,15 +827,58 @@ export default function StudentDegreePlan() {
                 Previous
               </button>
 
-              <div style={{ textAlign: "center" }}>
+              <div style={{ textAlign: "center", flex: 1 }}>
                 <h3 style={{ margin: 0, fontSize: "1.5rem" }}>
                   {semesterKeys[currentSemesterIndex]}
                 </h3>
-                <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", color: "var(--text-secondary)" }}>
-                  {groupedSchedule[semesterKeys[currentSemesterIndex]].length} courses | {
-                    groupedSchedule[semesterKeys[currentSemesterIndex]].reduce((sum, c) => sum + (c.creditHours || 0), 0)
-                  } credits
-                </p>
+                <div style={{ 
+                  display: "flex", 
+                  justifyContent: "center", 
+                  alignItems: "center", 
+                  gap: "1rem",
+                  marginTop: "0.5rem",
+                  flexWrap: "wrap"
+                }}>
+                  <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+                    {groupedSchedule[semesterKeys[currentSemesterIndex]].length} courses | {
+                      groupedSchedule[semesterKeys[currentSemesterIndex]].reduce((sum, c) => sum + (c.creditHours || 0), 0)
+                    } credits
+                  </p>
+                  
+                  {(() => {
+                    const currentCourses = groupedSchedule[semesterKeys[currentSemesterIndex]];
+                    const workload = getWorkloadIndicator(currentCourses);
+                    const semesterGPA = calculateGPA(currentCourses);
+                    
+                    return (
+                      <>
+                        <span style={{
+                          padding: "0.25rem 0.75rem",
+                          borderRadius: "12px",
+                          backgroundColor: workload.color,
+                          color: "white",
+                          fontSize: "0.75rem",
+                          fontWeight: "600"
+                        }}>
+                          {workload.label}
+                        </span>
+                        
+                        {semesterGPA && (
+                          <span style={{
+                            padding: "0.25rem 0.75rem",
+                            borderRadius: "12px",
+                            backgroundColor: "#6c757d",
+                            color: "white",
+                            fontSize: "0.75rem",
+                            fontWeight: "600"
+                          }}>
+                            GPA: {semesterGPA}
+                          </span>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
 
               <button
@@ -801,6 +941,7 @@ export default function StudentDegreePlan() {
                   <th style={{ padding: "0.75rem", textAlign: "left" }}>Days</th>
                   <th style={{ padding: "0.75rem", textAlign: "left" }}>Time</th>
                   <th style={{ padding: "0.75rem", textAlign: "left" }}>Instructor</th>
+                  <th style={{ padding: "0.75rem", textAlign: "left" }}>Grade</th>
                 </tr>
               </thead>
               <tbody>
@@ -843,13 +984,44 @@ export default function StudentDegreePlan() {
                             : (isCoop ? "Work Experience" : "TBD")}
                         </td>
                         <td style={{ padding: "0.75rem" }}>{course.instructorName || "TBD"}</td>
+                        <td style={{ padding: "0.75rem" }}>
+                          {!isCoop ? (
+                            <select
+                              value={grades[`${course.courseId}-${course.sectionId}`] || ""}
+                              onChange={(e) => handleGradeChange(course.courseId, course.sectionId, e.target.value)}
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "4px",
+                                border: "1px solid var(--border)",
+                                backgroundColor: "white",
+                                fontSize: "0.875rem",
+                                cursor: "pointer"
+                              }}
+                            >
+                              <option value="">-</option>
+                              <option value="A">A (4.0)</option>
+                              <option value="A-">A- (3.7)</option>
+                              <option value="B+">B+ (3.3)</option>
+                              <option value="B">B (3.0)</option>
+                              <option value="B-">B- (2.7)</option>
+                              <option value="C+">C+ (2.3)</option>
+                              <option value="C">C (2.0)</option>
+                              <option value="C-">C- (1.7)</option>
+                              <option value="D+">D+ (1.3)</option>
+                              <option value="D">D (1.0)</option>
+                              <option value="F">F (0.0)</option>
+                            </select>
+                          ) : (
+                            <span style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>N/A</span>
+                          )}
+                        </td>
                       </tr>
                     );
                   })}
                 {searchQuery.trim() && 
                  groupedSchedule[semesterKeys[currentSemesterIndex]].filter(courseMatchesSearch).length === 0 && (
                   <tr>
-                    <td colSpan="6" style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                    <td colSpan="7" style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)" }}>
                       No courses found in this semester matching "{searchQuery}"
                     </td>
                   </tr>
