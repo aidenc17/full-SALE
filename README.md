@@ -13,19 +13,22 @@
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Screenshots](#screenshots)
-- [Getting Started](#getting-started)
+- [🎯 Overview](#-overview)
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📸 Screenshots](#-screenshots)
+- [🚀 Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Running the Application](#running-the-application)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Team](#team)
-- [License](#license)
+- [📁 Project Structure](#-project-structure)
+- [📚 API Documentation](#-api-documentation)
+- [👥 Team](#-team)
+- [📄 License](#-license)
 - [Acknowledgments](#acknowledgments)
+- [📞 Contact & Support](#-contact--support)
+- [🗺️ Roadmap](#️-roadmap)
+- [📊 Project Status](#-project-status)
 
 ---
 
