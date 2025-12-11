@@ -193,7 +193,8 @@ docker-compose up
 **Terminal 2 - Start Backend:**
 ```bash
 cd full-SALE-api
-mvn spring-boot:run
+mvn clean package -DskipTests  
+java -jar target/degreeadminbackend-0.0.1-SNAPSHOT.jar    
 ```
 
 **Terminal 3 - Start Frontend:**
@@ -216,10 +217,10 @@ npm run build
 
 # Build backend with frontend
 cd full-SALE-api
-mvn clean package
+mvn clean package -DskipTests  
 
 # Run the JAR
-java -jar target/full-sale-api-0.0.1-SNAPSHOT.jar
+java -jar target/degreeadminbackend-0.0.1-SNAPSHOT.jar    
 ```
 
 ### Default Test Accounts
@@ -427,7 +428,7 @@ furnished to do so, subject to the following conditions:
 
 ## 🗺️ Roadmap
 
-### Current Version (v1.0) - December 2024
+### Current Version (v1.0) - December 2025
 - ✅ Core schedule generation
 - ✅ GPA calculator
 - ✅ Course search & filtering
@@ -456,13 +457,13 @@ furnished to do so, subject to the following conditions:
 
 ## 📊 Project Status
 
-**Current Phase:** Production Demo (December 2024)
+**Current Phase:** Production Demo (December 2025)
 
 ![Progress](https://img.shields.io/badge/Progress-95%25-brightgreen)
 ![Build](https://img.shields.io/badge/Build-Passing-success)
 ![Coverage](https://img.shields.io/badge/Coverage-75%25-yellow)
 
-**Last Updated:** December 11, 2024
+**Last Updated:** December 11, 2025
 
 ---
 
