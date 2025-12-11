@@ -8,11 +8,10 @@
  * - Password visibility toggle
  * - Inline error messages
  * - Auto-redirect to user's role-specific dashboard
- * - Demo credential autofill for testing
  *
  * VALIDATION RULES:
  * - Username: Exactly 8 lowercase letters
- * - Password: Exactly 12 characters (1 uppercase, 1 lowercase, 1 digit, 1 symbol)
+ * - Password: 8-40 characters (1 uppercase, 1 lowercase, 1 digit, 1 symbol)
  *
  * SESSION MANAGEMENT:
  * - Uses sessionStorage (auto-clears when you close the browser)
@@ -24,13 +23,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { isValidUsername, isValidPassword } from "../utils/validation";
 import { login } from "../api";
 import { Eye, EyeOff, CalendarHeart } from "lucide-react";
-
-// Demo login info for testing (needs to follow validation rules, makes testing easier)
-const DEMO_CREDENTIALS = {
-  evantimm: { username: "evantimm", password: "fR7!k9PzL2q#" },
-  lauraben: { username: "lauraben", password: "Lb8$hY3mQw" },
-  aidencox: { username: "aidencox", password: "Aa1aaaaaaa!1" },
-};
 
 export default function Login() {
   // Form state
@@ -73,14 +65,6 @@ export default function Login() {
       setError("You aren't in our system. Please contact CATS for help.");
     } finally {
       setLoading(false);
-    }
-  }
-
-  function fillDemoCredentials(role) {
-    const credentials = DEMO_CREDENTIALS[role];
-    if (credentials) {
-      setUsername(credentials.username);
-      setPassword(credentials.password);
     }
   }
 
@@ -159,29 +143,6 @@ export default function Login() {
           Sessions end when you log out or close your browser.
         </p>
       </form>
-
-      {/* Demo credentials dropdown */}
-      <div className="auth-demo">
-        <select
-          id="demo"
-          className="demo-select"
-          onChange={(e) => {
-            const role = e.target.value;
-            if (role) {
-              fillDemoCredentials(role);
-              e.target.value = ""; // Reset selection
-            }
-          }}
-          defaultValue=""
-        >
-          <option value="" disabled>
-            Fill demo credentials...
-          </option>
-          <option value="student">evantimm (evantimm)</option>
-          <option value="faculty">lauraben (lauraben)</option>
-          <option value="admin">aidencox (aidencox)</option>
-        </select>
-      </div>
     </div>
   );
 }

@@ -113,19 +113,31 @@ Built as an Intro to Software Engineering project (CEG 4110) at Wright State Uni
 
 ## 📸 Screenshots
 
-### Schedule Display
-*Semester-by-semester course view with navigation*
 
-### GPA Calculator
-*Real-time GPA tracking with workload indicators*
+### Login & Authentication
+![Login Page](docs/images/login.png)
+*Secure authentication with password visibility toggle and inline validation*
 
-### Course Search
-*Smart filtering with visual highlighting*
+### Degree Planning
+![Degree Selection](docs/images/degree-selection.png)
+*Choose majors, minors, and customize your academic path*
 
-### PDF Export
-*Professional printable degree plans*
+### Schedule Generation
+![Course Schedule](docs/images/schedule-view.png)
+*Semester-by-semester course plans with detailed information*
 
-> 📷 *Screenshots coming soon - project under active development*
+### Smart Course Search
+![Course Search](docs/images/search-filter.png)
+*Find courses instantly with intelligent filtering and visual highlighting*
+
+### Co-op Planning
+![Co-op Request](docs/images/coop-request.png)
+*Submit co-op requests with built-in earnings calculator*
+
+### Professional Export
+![PDF Export](docs/images/pdf-export.png)
+*Generate print-ready degree plans for advising meetings*
+
 
 ---
 
