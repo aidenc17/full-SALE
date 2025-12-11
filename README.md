@@ -379,7 +379,7 @@ Get list of available degree programs.
 | **Aiden Cox** | Frontend & Project Coordinator | React architecture, UI/UX, API integration, team website, project management |
 | **Evan Timm** | Backend Lead | Spring Boot setup, database design, REST APIs, business logic |
 | **Luke Dawson** | Data & Content | Curriculum data, requirements documentation, SRS |
-| **Samantha [Last Name]** | Frontend Lead & Testing  | Test plan, testing templates, quality assurance |
+| **Samantha Barnum** | Frontend Lead & Testing  | Test plan, testing templates, quality assurance |
 
 **Faculty Advisor:** Dr. Sean Banerjee
 **Course:** CEG 4110 - Intro to Software Engineering  
@@ -421,7 +421,7 @@ furnished to do so, subject to the following conditions:
 
 - **Project Website:** [Team Site](https://aidenc17.github.io/full-SALE/)
 - **Report Issues:** [GitHub Issues](../../issues)
-- **Email:** [cox.378@wright.edu]
+- **Email:** [cox.378@wright.edu](Email)
 
 ---
 
