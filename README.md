@@ -393,7 +393,7 @@ Get list of available degree programs.
 | Name | Role | Contributions |
 |------|------|---------------|
 | **Aiden Cox** | Frontend & Project Coordinator | React architecture, UI/UX, API integration, team website, project management |
-| **Evan Timm** | Backend Lead | Spring Boot setup, database design, REST APIs, business logic |
+| **Evan Timmons** | Backend Lead | Spring Boot setup, database design, REST APIs, business logic |
 | **Luke Dawson** | Data & Content | Curriculum data, requirements documentation, SRS |
 | **Samantha Barnum** | Frontend Lead & Testing  | Test plan, testing templates, quality assurance |
 
